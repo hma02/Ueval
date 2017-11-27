@@ -83,12 +83,10 @@ function setupUploadWeightsButton(fileInput, model) {
 }
 
 
-function buildFakeImageContainer(inferenceContainer, model) {
-    // const inferenceContainer =
-    //     document.querySelector('#generated-container');
+function buildImageContainer(inferenceContainer, model) {
+
     inferenceContainer.innerHTML = '';
-    // fakeInputNDArrayVisualizers = [];
-    // fakeOutputNDArrayVisualizers = [];
+
     for (let i = 0; i < INFERENCE_EXAMPLE_COUNT; i++) {
 
         if (i % INFERENCE_EXAMPLE_ROWS === 0 && i !== 0) {
@@ -106,7 +104,7 @@ function buildFakeImageContainer(inferenceContainer, model) {
         ndarrayImageVisualizer.setShape(model.generatorNet.outputShape);
         ndarrayImageVisualizer.setSize(
             INFERENCE_IMAGE_SIZE_PX, INFERENCE_IMAGE_SIZE_PX);
-        model.fakeInputNDArrayVisualizers.push(ndarrayImageVisualizer);
+        model.inputNDArrayVisualizers.push(ndarrayImageVisualizer);
 
         inferenceContainer.appendChild(inferenceExampleElement);
     }
@@ -142,12 +140,16 @@ function loadNetFromJson(modelJson, which) {
 
 class EvalSampleModel {
 
-    constructor(modelConfigs, id) {
+    constructor(modelConfigs, id, needGen = true) {
         this.modelConfigs = modelConfigs;
 
         this.id = id; // prepare for scaling up to multiple models
 
-        this.generatorNet = new Net('gen', 'Convolutional', modelConfigs);
+        this.needGen = needGen;
+
+        if (this.needGen) {
+            this.generatorNet = new Net('gen', 'Convolutional', modelConfigs);
+        }
         this.criticNet = new Net('crit', 'Convolutional', modelConfigs);
 
         const eventObserver = {
@@ -178,28 +180,29 @@ class EvalSampleModel {
 
     initialize() {
 
-        this.loadNetFromPath(this.generatorNet.path, this.generatorNet);
         this.loadNetFromPath(this.criticNet.path, this.criticNet);
-
-        const fileInput = document.querySelector('#weights-file');
-        setupUploadWeightsButton(fileInput, this);
+        if (this.needGen) {
+            this.loadNetFromPath(this.generatorNet.path, this.generatorNet);
+            const fileInput = document.querySelector('#weights-file');
+            setupUploadWeightsButton(fileInput, this);
+        }
 
         // image visualizers
-        this.fakeInputNDArrayVisualizers = [];
-        this.visualizerElt = document.querySelector('#generated-container');
-        buildFakeImageContainer(this.visualizerElt, this);
+        this.inputNDArrayVisualizers = [];
+        this.visualizerElt = document.querySelector('#image-container' + `${this.id}`);
+        buildImageContainer(this.visualizerElt, this);
 
         // loss graph
         this.critLossGraph = new cnnvis.Graph();
         this.critLossWindow = new cnnutil.Window(200);
-        this.lossGraphElt = document.getElementById("critlossgraph")
+        this.lossGraphElt = document.getElementById("lossgraph" + `${this.id}`);
 
         // batchesEvaluated
-        this.batchesEvaluatedElt = document.getElementById("examplesEvaluated");
+        this.batchesEvaluatedElt = document.getElementById("examplesEvaluated" + `${this.id}`);
 
         // examples per sec
         this.evalExamplesPerSec = 0;
-        this.examplesPerSecElt = document.getElementById("evalExamplesPerSec");
+        this.examplesPerSecElt = document.getElementById("evalExamplesPerSec" + `${this.id}`);
 
         this.eval_request = null;
         this.btn_eval = document.getElementById('buttoneval' + `${this.id}`);
@@ -226,7 +229,11 @@ class EvalSampleModel {
             // which.layerParamChanged()
             which.validateNet();
 
-            this.isValid = this.criticNet.isValid && this.generatorNet.isValid;
+            if (this.needGen) {
+                this.isValid = this.criticNet.isValid && this.generatorNet.isValid;
+            } else {
+                this.isValid = this.criticNet.isValid
+            }
 
             console.log(`${which.name}valid`, which.isValid, 'allvalid:', this.isValid);
 
@@ -289,12 +296,12 @@ class EvalSampleModel {
 
         for (let i = 0; i < inferenceOutputs.length; i++) {
             // inputNDArrayVisualizers[i].saveImageDataFromNDArray(realImages[i]);
-            this.fakeInputNDArrayVisualizers[i].saveImageDataFromNDArray(fakeImages[i]);
+            this.inputNDArrayVisualizers[i].saveImageDataFromNDArray(fakeImages[i]);
         }
 
         for (let i = 0; i < inferenceOutputs.length; i++) {
             // inputNDArrayVisualizers[i].draw();
-            this.fakeInputNDArrayVisualizers[i].draw();
+            this.inputNDArrayVisualizers[i].draw();
 
         }
     }
@@ -324,8 +331,12 @@ class EvalSampleModel {
         // Construct graph
         this.graph = new Graph();
         const g = this.graph;
-        this.randomTensor = g.placeholder('random', this.generatorNet.inputShape);
-        this.xTensor = g.placeholder('input', this.generatorNet.outputShape);
+        if (this.needGen) {
+            this.randomTensor = g.placeholder('random', this.generatorNet.inputShape);
+        } else {
+            this.x0Tensor = g.placeholder('inputReal', this.criticNet.inputShape);
+        }
+        this.xTensor = g.placeholder('input', this.criticNet.inputShape);
         this.oneTensor = g.placeholder('one', [2]);
         this.zeroTensor = g.placeholder('zero', [2]);
 
@@ -333,35 +344,49 @@ class EvalSampleModel {
         const zerosInitializer = new ZerosInitializer()
         const onesInitializer = new OnesInitializer();
 
+
         let weights = null;
-        if (loadedWeights != null) {
+        let gen = null;
+        if (this.needGen) {
+            if (loadedWeights != null) {
 
-            function toArray(dicValues, dicSize) {
-                var array = dicValues;
-                array.length = dicSize;
-                return Array.prototype.slice.call(array);
+                function toArray(dicValues, dicSize) {
+                    var array = dicValues;
+                    array.length = dicSize;
+                    return Array.prototype.slice.call(array);
+                }
+
+                console.log('loading weights', loadedWeights);
+                weights = {};
+                for (var key in loadedWeights) {
+                    weights[key] = toArray(loadedWeights[key].ndarrayData.values, loadedWeights[key].size);
+                }
+
+            } else {
+                console.log('no weights loaded, random initializing weights');
             }
 
-            console.log('loading weights', loadedWeights);
-            weights = {};
-            for (var key in loadedWeights) {
-                weights[key] = toArray(loadedWeights[key].ndarrayData.values, loadedWeights[key].size);
+
+            // Construct generator
+            gen = this.randomTensor;
+            for (let i = 0; i < this.generatorNet.hiddenLayers.length; i++) {
+                [gen] = this.generatorNet.hiddenLayers[i].addLayerMultiple(g, [gen],
+                    'generator-' + i.toString(), weights); // weights is a dictionary {w: NDArray, b: NDArray}
             }
-
-        } else {
-            console.log('no weights loaded, random initializing weights');
+            gen = g.tanh(gen);
         }
 
-        // Construct generator
-        let gen = this.randomTensor;
-        for (let i = 0; i < this.generatorNet.hiddenLayers.length; i++) {
-            [gen] = this.generatorNet.hiddenLayers[i].addLayerMultiple(g, [gen],
-                'generator-' + i.toString(), weights); // weights is a dictionary {w: NDArray, b: NDArray}
-        }
-        gen = g.tanh(gen);
 
         // Construct critic
-        let crit1 = gen;
+        let crit1 = null;
+        if (this.needGen) {
+            crit1 = gen;
+            this.generatedImage = gen;
+        } else {
+            crit1 = this.x0Tensor; // the image tensor make sure not the same as xTensor
+            this.generatedImage = this.x0Tensor;
+        }
+
         let crit2 = this.xTensor; // real image
         for (let i = 0; i < this.criticNet.hiddenLayers.length; i++) {
             let _weights = null;
@@ -371,8 +396,6 @@ class EvalSampleModel {
             [crit1, crit2] = this.criticNet.hiddenLayers[i].addLayerMultiple(g, [crit1, crit2],
                 'critic-' + i.toString(), _weights);
         }
-
-        this.generatedImage = gen;
 
         this.critPredictionReal = crit2;
         this.critPredictionFake = crit1;

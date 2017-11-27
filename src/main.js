@@ -147,6 +147,11 @@ function buildModels(xhrDatasetConfigs, selectedDatasetName) {
     var evalModel = new EvalSampleModel(modelConfigs, models.length);
     evalModel.initialize();
     models.push(evalModel);
+
+
+    // var evalModelRealImage = new EvalSampleModel(modelConfigs, models.length, false);
+    // evalModelRealImage.initialize();
+    // models.push(evalModelRealImage);
 }
 
 // --------------------  display and control  -------------------------------
@@ -266,7 +271,7 @@ function start() {
 
     supported = detect_support();
 
-    var inputs = document.getElementsByTagName("INPUT");
+    var inputs = document.getElementsByTagName("input");
 
     if (supported) {
         console.log('device & webgl supported');
