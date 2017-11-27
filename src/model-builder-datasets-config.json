@@ -1,0 +1,41 @@
+{
+    "MNIST": {
+        "data": [{
+            "name": "images",
+            "path": "https://storage.googleapis.com/learnjs-data/model-builder/mnist_images.png",
+            "dataType": "png",
+            "shape": [28, 28, 1]
+        }, {
+            "name": "labels",
+            "path": "https://storage.googleapis.com/learnjs-data/model-builder/mnist_labels_uint8",
+            "dataType": "uint8",
+            "shape": [10]
+        }],
+        "modelConfigs": {
+            "disc": {
+                "inputShape": [28, 28, 1],
+                "outputShape": [2],
+                "paths": {
+                    "Fully connected": "src/mnist-fully-connected.json",
+                    "Convolutional": "src/mnist-conv.json"
+                }
+            },
+            "gen": {
+                "inputShape": [100],
+                "outputShape": [28, 28, 1],
+                "paths": {
+                    "Fully connected": "src/gen-mnist-fully-connected.json",
+                    "Convolutional": "src/gen-mnist-conv.json"
+                }
+            },
+            "crit": {
+                "inputShape": [28, 28, 1],
+                "outputShape": [2],
+                "paths": {
+                    "Fully connected": "src/mnist-fully-connected.json",
+                    "Convolutional": "src/mnist-conv.json"
+                }
+            }
+        }
+    }
+}
