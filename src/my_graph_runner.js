@@ -342,8 +342,6 @@ class MyGraphRunner {
     }
 }
 
-
-
 // function startInferenceImageEval() {
 //     const data = getImageDataOnly();
 //     if (data == null) {

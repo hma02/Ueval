@@ -15,12 +15,6 @@
  * =============================================================================
  */
 
-
-
-function getDisplayShape(shape) {
-    return `[${shape}]`;
-}
-
 var dl = deeplearn;
 var Array1D = dl.Array1D;
 var Array3D = dl.Array3D;
@@ -79,22 +73,7 @@ const TRAIN_TEST_RATIO = 5 / 6;
 const IMAGE_DATA_INDEX = 0;
 const LABEL_DATA_INDEX = 1;
 
-// var isValid;
-var applicationState;
-
-// var graphRunner;
-// var session;
-
 var datasetDownloaded;
-var datasetNames;
-var selectedEnvName;
-
-// var selectedModelName;
-// var genSelectedModelName;
-
-var critSelectedOptimizerName;
-
-var dataSets;
 var dataSet;
 
 var critLearningRate = 0.01;
@@ -106,26 +85,30 @@ var critBeta2 = 0.999;
 var critNeedGamma = false;
 var critNeedBeta = false;
 var batchSize = 30;
+var critSelectedOptimizerName;
 
-
-
+var selectedEnvName;
 var math;
 // Keep one instance of each NDArrayMath so we don't create a user-initiated
 // number of NDArrayMathGPU's.
-var mathGPU = new NDArrayMathGPU();;
-var mathCPU = new NDArrayMathCPU();;
+var mathGPU = new NDArrayMathGPU();
+var mathCPU = new NDArrayMathCPU();
+
+var applicationState;
 
 function getImageDataOnly() {
     const [images, labels] = dataSet.getData();
     return images
 }
 
-// ------------------------- build model -----------------------------
+function getDisplayShape(shape) {
+    return `[${shape}]`;
+}
 
 // this is a global function for preparing the datasets for all models within this application
 
 function fetchConfig_DownloadData(fetchConfigCallback) {
-    dataSets = {};
+    var dataSets = {};
     xhr_dataset.getXhrDatasetConfig(DATASETS_CONFIG_JSON).then(
         _xhrDatasetConfigs => {
 
@@ -135,13 +118,10 @@ function fetchConfig_DownloadData(fetchConfigCallback) {
                         new XhrDataset(_xhrDatasetConfigs[datasetName]);
                 }
             }
-            datasetNames = Object.keys(dataSets);
-            selectedDatasetName = datasetNames[0]; // 0: MNIST,  1: FashionMNIST 2: CIFAR10
+            var datasetNames = Object.keys(dataSets);
+            var selectedDatasetName = datasetNames[0]; // 0: MNIST,  1: FashionMNIST 2: CIFAR10
 
             dataSet = dataSets[selectedDatasetName];
-
-            // inputShape = dataSet.getDataShape(IMAGE_DATA_INDEX);
-            //labelShape = dataSet.getDataShape(LABEL_DATA_INDEX);
 
             fetchConfigCallback(_xhrDatasetConfigs, selectedDatasetName);
 
@@ -161,18 +141,12 @@ function fetchConfig_DownloadData(fetchConfigCallback) {
 // -------- global function to build all needed models within the application
 
 var models = [];
-// var evalModel;
 
 function buildModels(xhrDatasetConfigs, selectedDatasetName) {
-
     const modelConfigs = xhrDatasetConfigs[selectedDatasetName].modelConfigs;
-
     var evalModel = new EvalSampleModel(modelConfigs, models.length);
-
     evalModel.initialize();
-
     models.push(evalModel);
-
 }
 
 // --------------------  display and control  -------------------------------
@@ -209,7 +183,7 @@ btn_infer.addEventListener('click', () => {
     }
 });
 
-// ----------------------- application initialization ----------------------
+// ----------------------- application initialization and monitor ----------------------
 
 
 function run() {
@@ -223,7 +197,6 @@ function run() {
     critNeedGamma = false;
     critNeedBeta = false;
     batchSize = 30;
-
     // Default optimizer is momentum
     critSelectedOptimizerName = "adam";
 
