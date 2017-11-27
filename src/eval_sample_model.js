@@ -71,7 +71,7 @@ function setupUploadWeightsButton(fileInput, model) {
 
             weights = JSON.parse(weightsJson);
 
-            if (isValid) {
+            if (model.isValid) {
                 model.createModel(weights);
             } else {
                 console.log('model not valid');
@@ -120,19 +120,66 @@ function smoothExamplesPerSec(
         .toPrecision(3));
 }
 
+// refactor this load functions into generic utility functions by separating  
+// global variables outside and using callback for async return
+
+function loadNetFromJson(modelJson, which) {
+    var lastOutputShape;
+    var hiddenLayers;
+
+    lastOutputShape = which.inputShape;
+
+    hiddenLayers = which.hiddenLayers;
+
+    const layerBuilders = JSON.parse(modelJson);
+    for (let i = 0; i < layerBuilders.length; i++) {
+        const modelLayer = which.addLayer();
+        modelLayer.loadParamsFromLayerBuilder(lastOutputShape, layerBuilders[i]);
+        lastOutputShape = hiddenLayers[i].setInputShape(lastOutputShape);
+
+    }
+}
+
 class EvalSampleModel {
 
-    constructor(modelConfigs) {
+    constructor(modelConfigs, id) {
         this.modelConfigs = modelConfigs;
+
+        this.id = id; // prepare for scaling up to multiple models
 
         this.generatorNet = new Net('gen', 'Convolutional', modelConfigs);
         this.criticNet = new Net('crit', 'Convolutional', modelConfigs);
+
+        const eventObserver = {
+            batchesEvaluatedCallback: (batchesEvaluated) =>
+                this.displayBatchesEvaluated(batchesEvaluated),
+
+            critCostCallback: (cost) => {
+                var batchesEvaluated = this.graphRunner.getTotalBatchesEvaluated();
+                this.displayCost(cost, batchesEvaluated)
+            },
+
+            inferenceExamplesCallback:
+                (inputFeeds, inferenceOutputs) =>
+                this.displayInferenceExamplesOutput(inputFeeds, inferenceOutputs),
+
+            evalExamplesPerSecCallback: (examplesPerSec) =>
+                this.displayEvalExamplesPerSec(examplesPerSec),
+        };
+
+        this.graphRunner = new MyGraphRunner(eventObserver);
+
+        updateSelectedEnvironment(selectedEnvName, this.graphRunner);
+
+        this.isValid = false;
+        this.modelInitialized = false;
+
     }
 
     initialize() {
 
-        loadNetFromPath(this.generatorNet.path, this.generatorNet);
-        loadNetFromPath(this.criticNet.path, this.criticNet);
+        this.loadNetFromPath(this.generatorNet.path, this.generatorNet);
+        this.loadNetFromPath(this.criticNet.path, this.criticNet);
 
         const fileInput = document.querySelector('#weights-file');
         setupUploadWeightsButton(fileInput, this);
@@ -153,6 +200,46 @@ class EvalSampleModel {
         // examples per sec
         this.evalExamplesPerSec = 0;
         this.examplesPerSecElt = document.getElementById("evalExamplesPerSec");
+
+        this.eval_request = null;
+        this.btn_eval = document.getElementById('buttoneval' + `${this.id}`);
+        this.eval_paused = true;
+        this.btn_eval.addEventListener('click', () => {
+            this.eval_paused = !this.eval_paused;
+
+            if (this.eval_paused) {
+                this.stopEvaluating(); // can return quickly
+                this.btn_eval.value = 'Start Evaluating';
+            } else {
+                this.eval_request = true;
+                this.btn_eval.value = 'Pause Evaluating';
+            }
+        });
+    }
+
+    loadNetFromPath(modelPath, which) {
+        const xhr = new XMLHttpRequest();
+        xhr.open('GET', modelPath);
+
+        xhr.onload = () => {
+            loadNetFromJson(xhr.responseText, which);
+            // which.layerParamChanged()
+            which.validateNet();
+
+            this.isValid = this.criticNet.isValid && this.generatorNet.isValid;
+
+            console.log(`${which.name}valid`, which.isValid, 'allvalid:', this.isValid);
+
+            if (this.isValid) {
+                this.createModel();
+            }
+
+        };
+        xhr.onerror = (error) => {
+            throw new Error(
+                'Model could not be fetched from ' + modelPath + ': ' + error);
+        };
+        xhr.send();
     }
 
     displayCost(avgCost, batchesEvaluated) {
@@ -212,10 +299,25 @@ class EvalSampleModel {
         }
     }
 
+    monitorEvalRequestAndUpdateUI() {
+
+        if (this.eval_paused) {
+            this.btn_eval.value = 'Start Evaluating'
+        } else {
+            this.btn_eval.value = 'Stop Evaluating'
+        }
+
+        if (this.eval_request) {
+            this.eval_request = false;
+            this.startEvalulating();
+        }
+
+    }
+
     createModel(loadedWeights = null) {
 
-        modelInitialized = false;
-        if (isValid === false) {
+        this.modelInitialized = false;
+        if (this.isValid === false) {
             return;
         }
 
@@ -247,7 +349,7 @@ class EvalSampleModel {
             }
 
         } else {
-            console.log('no weights loaded, random initialize weights');
+            console.log('no weights loaded, random initializing weights');
         }
 
         // Construct generator
@@ -289,11 +391,11 @@ class EvalSampleModel {
             this.session.dispose()
         }
         this.session = new Session(g, math);
-        graphRunner.setSession(this.session);
+        this.graphRunner.setSession(this.session);
 
         // startInference();
 
-        modelInitialized = true;
+        this.modelInitialized = true;
 
         console.log('model initialized = true');
     }
@@ -303,7 +405,7 @@ class EvalSampleModel {
         if (data == null) {
             return;
         }
-        if (isValid && (data != null)) {
+        if (this.isValid && (data != null)) {
             const shuffledInputProviderGenerator =
                 new InCPUMemoryShuffledInputProviderBuilder([data]);
             const [inputImageProvider] =
@@ -345,11 +447,21 @@ class EvalSampleModel {
                 }
             ]
 
-            graphRunner.infer(
+            this.graphRunner.infer(
                 this.generatedImage, null, null,
                 inferenceFeeds, INFERENCE_EXAMPLE_INTERVAL_MS, INFERENCE_EXAMPLE_COUNT
             );
         }
+    }
+
+    stopInference() {
+
+        this.graphRunner.stopInferring();
+    }
+
+    stopEvaluating() {
+
+        this.graphRunner.stopEvaluating();
     }
 
     startEvalulating() {
@@ -359,9 +471,9 @@ class EvalSampleModel {
         let critOptimizer = createOptimizer('crit', this.graph); // for js, exact same optimizer
         // genOptimizer = createOptimizer('gen');
 
-        if (isValid && data != null) {
+        if (this.isValid && data != null) {
             // recreateCharts();
-            graphRunner.resetStatistics();
+            this.graphRunner.resetStatistics();
 
             const shuffledInputProviderGenerator =
                 new InCPUMemoryShuffledInputProviderBuilder([data]);
@@ -418,7 +530,7 @@ class EvalSampleModel {
                 }
             ]
 
-            graphRunner.evaluate(
+            this.graphRunner.evaluate(
                 this.critLoss, null, critFeeds, genFeeds, batchSize,
                 critOptimizer, null, undefined, COST_INTERVAL_MS);
 
@@ -427,6 +539,18 @@ class EvalSampleModel {
         }
     }
 
+}
+
+
+function getRandomInputProvider(shape) {
+    return {
+        getNextCopy(math) {
+            return NDArray.randNormal(shape);
+        },
+        disposeCopy(math, copy) {
+            copy.dispose();
+        }
+    }
 }
 
 function createOptimizer(which, graph) {

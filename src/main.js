@@ -15,16 +15,7 @@
  * =============================================================================
  */
 
-function getRandomInputProvider(shape) {
-    return {
-        getNextCopy(math) {
-            return NDArray.randNormal(shape);
-        },
-        disposeCopy(math, copy) {
-            copy.dispose();
-        }
-    }
-}
+
 
 function getDisplayShape(shape) {
     return `[${shape}]`;
@@ -88,37 +79,35 @@ const TRAIN_TEST_RATIO = 5 / 6;
 const IMAGE_DATA_INDEX = 0;
 const LABEL_DATA_INDEX = 1;
 
-var isValid;
+// var isValid;
 var applicationState;
-var modelInitialized;
 
-var graphRunner;
-var session;
+// var graphRunner;
+// var session;
 
 var datasetDownloaded;
 var datasetNames;
 var selectedEnvName;
-// var selectedDatasetName;
 
-var selectedModelName;
-var genSelectedModelName;
+// var selectedModelName;
+// var genSelectedModelName;
 
 var critSelectedOptimizerName;
 
 var dataSets;
 var dataSet;
-// var xhrDatasetConfigs;
 
-var critLearningRate;
+var critLearningRate = 0.01;
+var critMomentum = 0.1;
+var critNeedMomentum = false;
+var critGamma = 0.1;
+var critBeta1 = 0.9;
+var critBeta2 = 0.999;
+var critNeedGamma = false;
+var critNeedBeta = false;
+var batchSize = 30;
 
-var critMomentum;
-var critNeedMomentum;
-var critGamma;
-var critBeta1;
-var critBeta2;
-var critNeedGamma;
-var critNeedBeta;
-var batchSize;
+
 
 var math;
 // Keep one instance of each NDArrayMath so we don't create a user-initiated
@@ -171,70 +160,35 @@ function fetchConfig_DownloadData(fetchConfigCallback) {
 
 // -------- global function to build all needed models within the application
 
-var evalModel;
+var models = [];
+// var evalModel;
 
 function buildModels(xhrDatasetConfigs, selectedDatasetName) {
 
     const modelConfigs = xhrDatasetConfigs[selectedDatasetName].modelConfigs;
 
-    evalModel = new EvalSampleModel(modelConfigs);
+    var evalModel = new EvalSampleModel(modelConfigs, models.length);
 
     evalModel.initialize();
 
-}
+    models.push(evalModel);
 
-// refactor those two load functions into generic utility functions by separating  
-// global variables outside and using callback for async return
-
-function loadNetFromPath(modelPath, which) {
-    const xhr = new XMLHttpRequest();
-    xhr.open('GET', modelPath);
-
-    xhr.onload = () => {
-        loadNetFromJson(xhr.responseText, which);
-        // which.layerParamChanged()
-        which.validateNet();
-
-        isValid = evalModel.criticNet.isValid && evalModel.generatorNet.isValid;
-
-        console.log(`${which.name}valid`, which.isValid, 'allvalid:', isValid);
-
-        if (isValid) {
-            evalModel.createModel();
-        }
-
-    };
-    xhr.onerror = (error) => {
-        throw new Error(
-            'Model could not be fetched from ' + modelPath + ': ' + error);
-    };
-    xhr.send();
-}
-
-function loadNetFromJson(modelJson, which) {
-    var lastOutputShape;
-    var hiddenLayers;
-
-    lastOutputShape = which.inputShape;
-
-    hiddenLayers = which.hiddenLayers;
-
-    const layerBuilders = JSON.parse(modelJson);
-    for (let i = 0; i < layerBuilders.length; i++) {
-        const modelLayer = which.addLayer();
-        modelLayer.loadParamsFromLayerBuilder(lastOutputShape, layerBuilders[i]);
-        lastOutputShape = hiddenLayers[i].setInputShape(lastOutputShape);
-
-    }
 }
 
 // --------------------  display and control  -------------------------------
 
 function updateSelectedEnvironment(selectedEnvName, _graphRunner = null) {
     math = (selectedEnvName === 'GPU') ? mathGPU : mathCPU;
-    console.log('math =', math === mathGPU ? 'mathGPU' : 'mathCPU')
     if (_graphRunner != null) {
+        console.log('math =', math === mathGPU ? 'mathGPU' : 'mathCPU', 'with graphRunner', _graphRunner);
         _graphRunner.setMath(math);
+    } else {
+        if (models.length > 0) {
+            models.forEach(m => m.graphRunner.setMath(math))
+            console.log('math =', math === mathGPU ? 'mathGPU' : 'mathCPU', 'with graphRunners in all models', );
+        } else {
+            console.log('math =', math === mathGPU ? 'mathGPU' : 'mathCPU');
+        }
     }
 }
 
@@ -246,34 +200,12 @@ btn_infer.addEventListener('click', () => {
     infer_paused = !infer_paused;
     if (infer_paused) {
         btn_infer.value = 'Start Inferring';
-        if (graphRunner != null) {
-            graphRunner.stopInferring(); // can return quickly
+        if (models.length > 0) {
+            models.forEach(m => m.stopInference()); // can return quickly
         }
     } else {
         infer_request = true;
-        // graphRunner.startInference(); // can't return quickly, so put it outside to be monitored
         btn_infer.value = 'Pause Inferring';
-    }
-});
-
-var eval_request = null;
-var btn_eval = document.getElementById('buttoneval1');
-var eval_paused = true;
-btn_eval.addEventListener('click', () => {
-    eval_paused = !eval_paused;
-
-    if (eval_paused) {
-        if (graphRunner != null) {
-            graphRunner.stopEvaluating(); // can return quickly
-        }
-        btn_eval.value = 'Start Evaluating';
-
-    } else {
-
-        eval_request = true;
-        // graphRunner.startEvaluating(); // can't return quickly, so put it outside to be monitored
-        btn_eval.value = 'Pause Evaluating';
-
     }
 });
 
@@ -295,40 +227,15 @@ function run() {
     // Default optimizer is momentum
     critSelectedOptimizerName = "adam";
 
-    const eventObserver = {
-        batchesEvaluatedCallback: (batchesEvaluated) =>
-            evalModel.displayBatchesEvaluated(batchesEvaluated),
-
-        critCostCallback: (cost) => {
-            var batchesEvaluated = graphRunner.getTotalBatchesEvaluated();
-            evalModel.displayCost(cost, batchesEvaluated)
-        },
-
-        inferenceExamplesCallback:
-            (inputFeeds, inferenceOutputs) =>
-            evalModel.displayInferenceExamplesOutput(inputFeeds, inferenceOutputs),
-
-        evalExamplesPerSecCallback: (examplesPerSec) =>
-            evalModel.displayEvalExamplesPerSec(examplesPerSec),
-        // evalTotalTimeCallback: (totalTimeSec) => {
-        //     totalTimeSec = totalTimeSec.toFixed(1);
-        //     document.getElementById("evalTotalTimeSec").innerHTML = `Eval Total time: ${totalTimeSec} sec.`;
-        // },
-    };
-    graphRunner = new MyGraphRunner(math, session, eventObserver); // can do both inference and evaluate
-    // graphRunner = new ImageEvalGraphRunner(math, session, eventObserver); // can inference but can't do evaluate
-
     var envDropdown = document.getElementById("environment-dropdown");
     selectedEnvName = 'GPU';
     var ind = indexOfDropdownOptions(envDropdown.options, selectedEnvName)
     envDropdown.options[ind].selected = 'selected';
-    updateSelectedEnvironment(selectedEnvName, graphRunner);
-
-    modelInitialized = false;
+    updateSelectedEnvironment(selectedEnvName); // change math
 
     document.querySelector('#environment-dropdown').addEventListener('change', (event) => {
         selectedEnvName = event.target.value;
-        updateSelectedEnvironment(selectedEnvName, graphRunner)
+        updateSelectedEnvironment(selectedEnvName); // change math
     });
 
     // Set up datasets.
@@ -340,49 +247,40 @@ function monitor() {
 
     if (datasetDownloaded == false) {
         btn_infer.disabled = true;
-        btn_infer.value = 'Downloading data'
-        btn_eval.style.visibility = 'hidden';
+        btn_infer.value = 'Downloading data ...';
+        models.forEach(m => m.btn_eval.style.visibility = 'hidden');
 
     } else {
-        if (modelInitialized) {
-            if (isValid) {
+        if (models.every(m => m.isValid)) {
+            if (models.every(m => m.modelInitialized)) {
 
                 btn_infer.disabled = false;
                 // Before clicking the eval button, first load a pre-trained model to evaluate its samples against real images.Evaluate real images against real images not implemented yet.
-                btn_eval.style.visibility = 'visible';
+                models.forEach(m => m.btn_eval.style.visibility = 'visible');
 
                 if (infer_paused) {
-                    btn_infer.value = 'Start Infering'
+                    btn_infer.value = 'Start All Infering'
                 } else {
-                    btn_infer.value = 'Stop Infering'
-                }
-
-                if (eval_paused) {
-                    btn_eval.value = 'Start Evaluating'
-                } else {
-                    btn_eval.value = 'Stop Evaluating'
+                    btn_infer.value = 'Stop All Infering'
                 }
 
                 if (infer_request) {
                     infer_request = false;
-                    evalModel.startInference();
+                    models.forEach(m => m.startInference());
                 }
 
-                if (eval_request) {
-                    eval_request = false;
-                    evalModel.startEvalulating();
-                }
+                models.forEach(m => m.monitorEvalRequestAndUpdateUI());
 
             } else {
-                btn_infer.className = 'btn btn-danger btn-md';
+                btn_infer.className = 'btn btn-primary btn-md';
                 btn_infer.disabled = true;
-                btn_infer.value = 'Model not valid'
-                btn_eval.style.visibility = 'hidden';
+                btn_infer.value = 'Initializing Model ...'
+
             }
         } else {
+            btn_infer.className = 'btn btn-danger btn-md';
             btn_infer.disabled = true;
-            btn_infer.value = 'Initializing Model ...'
-            btn_eval.style.visibility = 'hidden';
+            btn_infer.value = 'Model not valid'
         }
     }
 
@@ -395,10 +293,16 @@ function start() {
 
     supported = detect_support();
 
+    var inputs = document.getElementsByTagName("INPUT");
+
     if (supported) {
         console.log('device & webgl supported');
-        btn_infer.disabled = false;
-        btn_eval.disabled = false;
+
+        for (var i = 0; i < inputs.length; i++) {
+            if (inputs[i].type === 'submit') {
+                inputs[i].disabled = false;
+            }
+        }
 
         setTimeout(function () {
             run(); // initialize data and model
@@ -407,7 +311,11 @@ function start() {
 
     } else {
         console.log('device/webgl not supported')
-        btn_infer.disabled = true;
-        btn_eval.disabled = true;
+
+        for (var i = 0; i < inputs.length; i++) {
+            if (inputs[i].type === 'submit') {
+                inputs[i].disabled = true;
+            }
+        }
     }
 }

@@ -85,114 +85,8 @@
         text-transform: uppercase;
     }
 
-    #dataset {
-        background: #fafafa;
-        border-right: 1px solid rgba(0, 0, 0, 0.1);
-        min-width: 210px;
-        /* width: 230px; */
-        /* position: relative; */
-    }
-
-    #dataset>div {
-        padding-left: 2px;
-        padding-right: 2px;
-    }
-
-    .data-stats {
-        margin-top: 10px;
-    }
-    /* #model-builder-container {
-        display: flex;
-        width: 100%;
-    } */
-
-    #model {
-        border-right: 1px solid rgba(0, 0, 0, 0.1);
-        max-width: 150px;
-        /* position: relative; */
-    }
-
-    #model>div {
-        padding-left: 2px;
-        padding-right: 2px;
-    }
-
-
-    .stat {
-        display: table-row;
-    }
-
-    .stat-label,
-    .stat-value {
-        display: table-cell;
-        padding: 5px 15px 5px 0;
-    }
-
-
-    #upload-download-container {
-        padding-top: 15px;
-        padding-bottom: 15px;
-        border-bottom: 1px solid rgba(0, 0, 0, .1);
-    }
-
-    .header {
-        border-bottom: solid .5px #666666;
-        height: 56px;
-        background: slategray;
-        color: #eaeaea;
-        z-index: 999;
-        font-weight: 500;
-        font-size: 22px;
-        padding-left: 12px;
-        line-height: 56px;
-    }
-
-    .train-button-container {
-        margin: 12px 0;
-    }
-
-    .model-error {
-        padding: 12px 0;
-        color: #b80000;
-        font-style: italic;
-    }
-
-    .model-error-info {
-        margin-left: -8px;
-    }
-
-    .invalid-model {
-        display: inline-block;
-    }
-
-    .inference-stats-message,
     .train-stats-message {
         line-height: 1.67em;
-    }
-
-    .button {
-        background-color: #a5d6a7;
-    }
-
-    #button-container {
-        width: 400px;
-        margin-top: 15px;
-    }
-
-    #inference {
-        /* border-right: 1px solid rgba(0, 0, 0, 0.1); */
-        /* flex-grow: 2; */
-        /* position: relative; */
-        min-width: 210px;
-    }
-
-    #inference-container {
-        margin-top: 15px;
-    }
-
-    #inference>div {
-        padding-left: 5px;
-        padding-right: 5px;
     }
 
     .inference-example {
@@ -201,47 +95,11 @@
         margin-bottom: 10px;
         margin-left: 10px
     }
-
-    .inference-example>* {
-        /* display: table-cell; */
-        /* vertical-align: middle; */
-    }
     /* ----------------------------*/
 
     .ndarray-image-visualizer {
         flex-basis: 100px;
     }
-
-    .ndarray-logits-visualizer {
-        flex-grow: 1;
-    }
-
-    .logit {
-        font-size: 21px;
-    }
-
-    .logit-label {
-        color: #414141;
-        font-size: 18px;
-        line-height: 18px;
-        margin: 4px;
-        display: inline-block;
-        width: 100px;
-    }
-
-    .single-logit-container {
-        display: flex;
-    }
-
-    .logit-viz-outer {
-        flex-grow: 1;
-    }
-
-    .logit-viz-inner {
-        vertical-align: middle;
-        padding: 4px;
-    }
-    /* ----------------------------*/
 </style>
 
 
@@ -300,7 +158,7 @@
 
                 </div>
                 <div class="col-md-6 col-sm-6 col-xs-12">
-                    <input class="btn btn-primary btn-md" id="buttoneval1" type="submit" value="Start Evaluating" />
+                    <input class="btn btn-primary btn-md" id="buttoneval0" type="submit" value="Start Evaluating" />
                     <div class="train-stats-message" id="evalExamplesPerSec">Eval Examples/sec: </div>
                     <div class="train-stats-message" id="examplesEvaluated">Examples evaluated:</div>
                     <!-- <div class="train-stats-message" id="evalTotalTimeSec">Eval Total time: sec.</div> -->
