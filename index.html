@@ -170,11 +170,12 @@
             <div class="item row">
 
                 <div class="col-md-6 col-sm-6 col-xs-12" style="border-right: thin solid #e0e0e0;">
-                    <h5 class="title">Data distribution</h5>
-                    <input class="btn btn-default btn-md paper" id="buttoneval0" type="submit" value="Evaluate" />
+                    <h5 class="title">Data distribution eval</h5>
+                    <input class="btn btn-default btn-md paper" id="buttoneval0" type="submit" value="Evaluate" data-toggle="tooltip" title="evaluate data quality score against data itself as a baseline"
+                    />
                     <br>
                     <br>
-                    <div class="subtitle">Real Image data eval stats:</div>
+
                     <div class="train-stats-message" id="evalExamplesPerSec0">Eval Examples/sec: </div>
                     <div class="train-stats-message" id="examplesEvaluated0">Examples evaluated:</div>
                     <div id="evalBarBackground0" style="width:100%; background-color: #ddd;">
@@ -183,9 +184,10 @@
 
                 </div>
                 <div class="col-md-6 col-sm-6 col-xs-12">
-                    <h5 class="title">Model distribution</h5>
+                    <h5 class="title">Model/Sample distribution eval</h5>
                     <span>
-                        <input class="btn btn-default btn-md paper" id="buttoneval1" type="submit" value="Evaluate" />
+                        <input class="btn btn-default btn-md paper" id="buttoneval1" type="submit" value="Evaluate" data-toggle="tooltip" title="evaluate sample distribution against data distribution"
+                        />
 
                         <label class="upload btn btn-default btn-file" data-toggle="tooltip" title="Upload generator weights to evaluate its samples, you can download weights from the GAN demo">
                             <i class="fa fa-upload" aria-hidden="true"></i> Upload
@@ -195,7 +197,7 @@
 
                     <br>
                     <br>
-                    <div class="subtitle">Generated image eval stats:</div>
+
                     <div class="train-stats-message" id="evalExamplesPerSec1">Eval Examples/sec: </div>
                     <div class="train-stats-message" id="examplesEvaluated1">Examples evaluated:</div>
                     <div id="evalBarBackground1" style="width:100%; background-color: #ddd;">
@@ -211,12 +213,12 @@
             <div class="item row">
 
                 <div class="col-md-6 col-sm-6 col-xs-12" style="border-right: thin solid #e0e0e0;">
-                    <p>real images</p>
+                    <div class="subtitle">Real Data Distribution:</div>
                     <div id="image-container0"></div>
                 </div>
 
                 <div class="col-md-6 col-sm-6 col-xs-12">
-                    <p>generated images</p>
+                    <div class="subtitle">Generated/Sample Data Distribution:</div>
                     <div id="image-container1"></div>
                 </div>
                 <!-- <div id="generated_bad_container">a bad generator</div> -->
@@ -227,11 +229,13 @@
 
             <div class="item row">
                 <div class="col-md-6 col-sm-6 col-xs-12" style="border-right: thin solid #e0e0e0;">
+                    <div class="subtitle">Real Data Eval Result:</div>
                     <canvas id="lossgraph0"></canvas>
                     <div id="final-score0"></div>
                 </div>
 
                 <div class="col-md-6 col-sm-6 col-xs-12">
+                    <div class="subtitle">Sample Data Eval Result:</div>
                     <canvas id="lossgraph1"></canvas>
                     <div id="final-score1"></div>
                 </div>
