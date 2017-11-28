@@ -123,16 +123,19 @@
                 <div class="jumbotron">
                     <h2>
                         Ueval</h2>
-                    <p style='font-size:1.2em'>This demo is refactored from
-                        <a href="https://github.com/reiinakano/gan-playground">gan-playground</a> which is based on
-                        <a href="https://deeplearnjs.org">deeplearnjs</a>. It shows how to unsupervisely evaluate generated sample qualities by using divergence
-                        metrics (end to end, no external model needed, no data labels needed).
+                    <p style='font-size:1.2em'>This demo is practice of using deeplearnjs. It is refactored from
+                        <a href="https://github.com/reiinakano/gan-playground">gan-playground</a> which is based on the
+                        <a href="https://deeplearnjs.org/demos/model-builder/">model-builder demo</a>.
                     </p>
                 </div>
                 <p>Last Update: 2017-11-27</p>
+
+                <p>
+                    <a href="https://github.com/hma02/Ueval/blob/master/LICENSE">Ueval's MIT License</a>
+                </p>
+
                 <p>
                     <a href="https://github.com/PAIR-code/deeplearnjs/blob/master/LICENSE">DeeplearnJS's Apache License</a>
-                    <a href="https://github.com/hma02/Ueval/blob/master/LICENSE">Ueval's MIT License</a>
                 </p>
 
             </div>
@@ -184,11 +187,15 @@
             <div class="item row">
                 <div class="col-md-6 col-sm-6 col-xs-12">
                     <h4>Unsupervisely evaluate sample qualities in browser</h4>
+                    <p>This web demo is to support our recent research paper under review. It shows how to unsupervisely evaluate
+                        generated sample quality by constructing a critic network based on certain divergence metrics (end
+                        to end, no external model needed, no data labels needed).
+                    </p>
                     <p>Click "
                         <b>Infer All</b>" to see samples from data distribution and model distribution.</p>
                     <p>Click "
                         <b>Evaluate</b>" of each section to evaluate sample quality. </p>
-                    <p>Data section, as a baseline, has best quality.</p>
+                    <p>Data distribution, as a baseline, has best quality.</p>
 
                     <hr class="divider hidden-lg hidden-md hidden-sm" />
 
