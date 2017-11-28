@@ -3,6 +3,7 @@
 // 2. display loss graph using chart
 // 3. upload images to evaluate
 // 4. add least square divergence
+// 5. add credit to collabrators
 
 class Net { // gen or disc or critic
     constructor(name, archType, modelConfigs) {
