@@ -63,7 +63,6 @@
             margin-top: 10px;
         }
     }
-    /* Base Button Style */
 
     .paper {
         box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3), 0 0 40px rgba(128, 128, 128, 0.1) inset;
@@ -185,11 +184,11 @@
             </style>
 
             <div class="item row">
-                <div class="col-md-6 col-sm-6 col-xs-12">
+                <div class="col-md-6 col-sm-12 col-xs-12">
                     <h4>Unsupervisely evaluate sample qualities in browser</h4>
-                    <p>This web demo is to support our recent research paper under review. It shows how to unsupervisely evaluate
-                        generated sample quality by constructing a critic network based on certain divergence metrics (end
-                        to end, no external model needed, no data labels needed).
+                    <p>This web demo is for supporting our recent research paper under review. It shows how to unsupervisely
+                        evaluate generated sample quality by constructing a critic network based on certain divergence metrics
+                        (end to end, no external model needed, no data labels needed).
                     </p>
                     <p>Click "
                         <b>Infer All</b>" to see samples from data distribution and model distribution.</p>
@@ -200,7 +199,7 @@
                     <hr class="divider hidden-lg hidden-md hidden-sm" />
 
                 </div>
-                <div class="col-md-6 col-sm-6 col-xs-12">
+                <div class="col-md-6 col-sm-12 col-xs-12">
                     <div class="form-group">
                         <label for="environment-dropdown">Environment</label>
                         <select class="form-control" id="environment-dropdown">
@@ -221,7 +220,7 @@
 
             <div class="item row">
 
-                <div class="col-md-6 col-sm-6 col-xs-12" style="border-right: thin solid #e0e0e0;">
+                <div class="col-md-6 col-sm-6 col-xs-12">
                     <h5 class="title">Data distribution eval</h5>
                     <input class="btn btn-default btn-md paper" id="buttoneval0" type="submit" value="Evaluate" data-toggle="tooltip" title="evaluate data quality score against data itself as a baseline"
                     />
@@ -264,32 +263,31 @@
 
             <div class="item row">
 
-                <div class="col-md-6 col-sm-6 col-xs-12" style="border-right: thin solid #e0e0e0;">
+                <div class="col-md-6 col-sm-12 col-xs-12">
                     <div class="subtitle">Real Data Distribution:</div>
                     <div id="image-container0"></div>
                 </div>
 
-                <div class="col-md-6 col-sm-6 col-xs-12">
+                <div class="col-md-6 col-sm-12 col-xs-12">
                     <div class="subtitle">Generated/Sample Data Distribution:</div>
                     <div id="image-container1"></div>
                 </div>
-                <!-- <div id="generated_bad_container">a bad generator</div> -->
 
             </div>
 
             <hr class="divider" />
 
             <div class="item row">
-                <div class="col-md-6 col-sm-6 col-xs-12" style="border-right: thin solid #e0e0e0;">
+                <div class="col-md-6 col-sm-12 col-xs-12">
                     <div class="subtitle">Real Data Eval Result:</div>
-                    <canvas id="lossgraph0"></canvas>
                     <div id="final-score0"></div>
+                    <canvas id="losschart0">chart0</canvas>
                 </div>
 
-                <div class="col-md-6 col-sm-6 col-xs-12">
+                <div class="col-md-6 col-sm-12 col-xs-12">
                     <div class="subtitle">Sample Data Eval Result:</div>
-                    <canvas id="lossgraph1"></canvas>
                     <div id="final-score1"></div>
+                    <canvas id="losschart1">chart1</canvas>
                 </div>
 
             </div>
@@ -324,18 +322,6 @@
     <!-- custom js -->
     <script type="text/javascript" src="assets/js/nav.js"></script>
 
-    <script src="https://unpkg.com/deeplearn"></script>
-
-    <!-- detect browser support -->
-    <script src="src/support.js"></script>
-    <script src="src/utils.js"></script>
-    <script src="src/model_layer.js"></script>
-    <script src="src/eval_sample_model.js"></script>
-    <script src="src/my_graph_runner.js"></script>
-    <script src="https://cs.stanford.edu/people/karpathy/convnetjs/build/vis.js"></script>
-    <script src="https://cs.stanford.edu/people/karpathy/convnetjs/build/util.js"></script>
-
-
     <script>
         $(document).ready(function () {
             $('[data-toggle="tooltip"]').tooltip();
@@ -358,6 +344,17 @@
             (d.head || d.body).appendChild(s);
         })();
     </script>
+
+
+    <script src="https://unpkg.com/deeplearn"></script>
+    <!-- detect browser support -->
+    <script src="src/support.js"></script>
+    <script src="src/utils.js"></script>
+    <script src="src/model_layer.js"></script>
+    <script src="src/eval_sample_model.js"></script>
+    <script src="src/my_graph_runner.js"></script>
+    <script src="https://cs.stanford.edu/people/karpathy/convnetjs/build/vis.js"></script>
+    <script src="https://cs.stanford.edu/people/karpathy/convnetjs/build/util.js"></script>
 
 
     <script type="text/javascript" src="src/main.js"></script>

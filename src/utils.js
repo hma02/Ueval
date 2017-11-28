@@ -94,9 +94,8 @@ function indexOfDropdownOptions(options, selectedName) {
     console.assert(false, 'can not find selected option in option array');
 }
 
-var chartDataX = [];
-var chartData = [];
 
+// var chartData = [];
 
 window.chartColors = {
     red: 'rgb(255, 99, 132)',
@@ -108,79 +107,54 @@ window.chartColors = {
     grey: 'rgb(201, 203, 207)'
 };
 
-
-var xAxes = {
-    display: true,
-    type: 'category',
-    // type: 'logarithmic',
-    position: 'bottom',
-    scaleLabel: {
-        display: true,
-        labelString: 'Input Image width or height (pixel)'
-    },
-};
-
-var yAxes = {
-    display: true,
-    scaleLabel: {
-        display: true,
-        labelString: 'time elapsed'
-    },
-    ticks: {
-        min: 0,
-        callback: (label, index, labels) => {
-            let num = Number(label).toFixed(2);
-            return `${num} ms`;
-        }
-    }
-}
-
 var config = {
     type: 'line',
     data: {
-        labels: chartDataX,
-        // labels: ["January", "February", "March", "April", "May", "June", "July"],
         datasets: [{
-            label: " ",
-            backgroundColor: window.chartColors.red,
-            borderColor: window.chartColors.red,
-            data: chartData,
+            data: [],
             fill: false,
+            label: ' ',
             pointRadius: 0,
-            pointHitRadius: 5,
+            borderColor: 'rgba(75,192,192,1)',
+            backgroundColor: 'rgba(75,192,192,1)',
             borderWidth: 1,
-            lineTension: 0,
+            // lineTension: 0,
+            // pointHitRadius: 8
         }]
     },
     options: {
         animation: {
             duration: 0
         },
-        responsive: true,
-        title: {
-            display: true,
-            text: 'Conv Benchmark on input size'
-        },
-        tooltips: {
-            mode: 'index',
-            intersect: false,
-        },
-        hover: {
-            mode: 'nearest',
-            intersect: true
-        },
+        responsive: false,
         scales: {
-            xAxes: [xAxes],
-            yAxes: [yAxes]
+            xAxes: [{
+                type: 'linear',
+                position: 'bottom'
+            }],
+            yAxes: [{
+                ticks: {
+                    min: null,
+                    callback: (label, index, labels) => {
+                        let num = Number(label).toFixed(2);
+                        return `${num}`;
+                    }
+                }
+            }]
         }
     }
 };
 
-function create_chart(canvas) {
 
-    canvas.width = 400;
-    canvas.height = 300;
-    const context = canvas.getContext('2d');
+function createChart(canvasElt, label, data, min = 0, max = null) {
+
+    // const canvas = document.getElementById(canvasId);
+
+    const context = canvasElt.getContext('2d');
+
+    config.data.datasets[0].data = data;
+    config.data.datasets[0].label = label;
 
     return new Chart(context, config);
-};
+
+}

@@ -210,10 +210,13 @@ class EvalSampleModel {
         this.visualizerElt = document.querySelector('#image-container' + `${this.id}`);
         buildImageContainer(this.visualizerElt, this);
 
-        // loss graph
-        this.critLossGraph = new cnnvis.Graph();
-        this.critLossWindow = new cnnutil.Window(200);
-        this.lossGraphElt = document.getElementById("lossgraph" + `${this.id}`);
+        // loss chart
+        this.chartData = [];
+        this.chartElt = document.getElementById('losschart' + `${this.id}`);
+        this.chartElt.style.minWidth = '155px';
+
+        this.critLossChart = createChart(this.chartElt, 'js divergence', this.chartData, 0, this.chartData.y);
+        this.critLossChart.update();
 
         // batchesEvaluated
         this.batchesEvaluatedElt = document.getElementById("examplesEvaluated" + `${this.id}`);
@@ -314,16 +317,15 @@ class EvalSampleModel {
 
         var cost = avgCost.get();
 
-        this.critLossWindow.add(cost);
+        this.finalScoreElt.innerHTML = `${this.critMetricName} Eval Score: ${cost.toPrecision(5)}`;
 
-        var xa = this.critLossWindow.get_average();
+        this.chartData.push({
+            x: batchesEvaluated,
+            y: cost
+        });
+        config.data.datasets[0].data = this.chartData;
+        this.critLossChart.update();
 
-        if (xa >= 0) { // if they are -1 it means not enough data was accumulated yet for estimates
-            this.critLossGraph.add(batchesEvaluated, xa);
-            this.critLossGraph.drawSelf(this.lossGraphElt);
-        }
-
-        this.finalScoreElt.innerHTML = `${this.critMetricName} Eval Score: ${xa.toPrecision(5)}`;
     }
 
     displayBatchesEvaluated(totalBatchesEvaluated) {
@@ -398,8 +400,8 @@ class EvalSampleModel {
                 this.resumeEvaluating();
             } else {
 
-                if (this.critLossGraph.pts.length > 0) {
-                    this.critLossGraph.pts = [];
+                if (this.chartData.length > 0) {
+                    this.chartData = [];
                 }
                 this.startEvalulating();
             }
