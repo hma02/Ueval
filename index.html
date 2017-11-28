@@ -160,6 +160,7 @@
                             <option value="GPU">GPU</option>
                         </select>
                     </div>
+                    <div id="targetEvalAmount"></div>
                 </div>
             </div>
 
@@ -176,6 +177,10 @@
                     <div class="subtitle">Real Image data eval stats:</div>
                     <div class="train-stats-message" id="evalExamplesPerSec0">Eval Examples/sec: </div>
                     <div class="train-stats-message" id="examplesEvaluated0">Examples evaluated:</div>
+                    <div id="evalBarBackground0" style="width:100%; background-color: #ddd;">
+                        <div id="evalBar0" style="width: 1%; height: 10px;  background-color: #4CAF50;"></div>
+                    </div>
+
                 </div>
                 <div class="col-md-6 col-sm-6 col-xs-12">
                     <h5 class="title">Model distribution</h5>
@@ -190,10 +195,12 @@
 
                     <br>
                     <br>
-                    <div class="subtitle">generated image eval stats:</div>
+                    <div class="subtitle">Generated image eval stats:</div>
                     <div class="train-stats-message" id="evalExamplesPerSec1">Eval Examples/sec: </div>
                     <div class="train-stats-message" id="examplesEvaluated1">Examples evaluated:</div>
-
+                    <div id="evalBarBackground1" style="width:100%; background-color: #ddd;">
+                        <div id="evalBar1" style="width: 1%; height: 10px;  background-color: #4CAF50;"></div>
+                    </div>
 
                 </div>
             </div>
@@ -221,10 +228,12 @@
             <div class="item row">
                 <div class="col-md-6 col-sm-6 col-xs-12" style="border-right: thin solid #e0e0e0;">
                     <canvas id="lossgraph0"></canvas>
+                    <div id="final-score0"></div>
                 </div>
 
                 <div class="col-md-6 col-sm-6 col-xs-12">
                     <canvas id="lossgraph1"></canvas>
+                    <div id="final-score1"></div>
                 </div>
 
             </div>

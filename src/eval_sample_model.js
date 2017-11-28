@@ -1,7 +1,7 @@
 // TODOs:
 // 1. make critic Initialization same by setting random seed
 // 2. display loss graph using chart
-// 3. add progress bar by monitoring examples-evaluated / batches-trained
+// 3. upload images to evaluate
 // 4. add least square divergence
 
 class Net { // gen or disc or critic
@@ -217,6 +217,15 @@ class EvalSampleModel {
         // batchesEvaluated
         this.batchesEvaluatedElt = document.getElementById("examplesEvaluated" + `${this.id}`);
 
+        // progress bar
+        this.evalProgressBar = document.getElementById("evalBar" + `${this.id}`);
+        this.targetEvalExampleAmount = TARGET_EVALUATION_EXAMPLE_AMOUNT;
+        this.evalProgressBarBackground = document.getElementById("evalBarBackground" + `${this.id}`);
+        this.evalProgressBarBackground.style.visibility = 'hidden';
+
+        // final score
+        this.finalScoreElt = document.getElementById("final-score" + `${this.id}`);
+
         // examples per sec
         this.evalExamplesPerSec = 0;
         this.examplesPerSecElt = document.getElementById("evalExamplesPerSec" + `${this.id}`);
@@ -312,11 +321,22 @@ class EvalSampleModel {
             this.critLossGraph.add(batchesEvaluated, xa);
             this.critLossGraph.drawSelf(this.lossGraphElt);
         }
+
+        this.finalScoreElt.innerHTML = `${this.critMetricName} Eval Score: ${xa.toPrecision(5)}`;
     }
 
     displayBatchesEvaluated(totalBatchesEvaluated) {
         this.examplesEvaluated = batchSize * totalBatchesEvaluated;
-        this.batchesEvaluatedElt.innerHTML = `Examples evaluated: ${this.examplesEvaluated}`
+        this.batchesEvaluatedElt.innerHTML = `Examples evaluated: ${this.examplesEvaluated}`;
+        this.evalProgressBar.style.width = (this.examplesEvaluated / this.targetEvalExampleAmount) * 100 + '%';
+
+        if (this.examplesEvaluated > 0) {
+            this.evalProgressBarBackground.style.visibility = 'visible';
+        }
+        if (this.examplesEvaluated >= this.targetEvalExampleAmount) {
+            this.btn_eval.click();
+        }
+
     }
 
     displayEvalExamplesPerSec(_examplesPerSec) {
@@ -471,6 +491,7 @@ class EvalSampleModel {
             this.zeroTensor
         );
         this.critLoss = g.add(critLossReal, critLossFake); // js loss
+        this.critMetricName = 'JS divergence';
 
         if (this.session != null) {
             this.session.dispose()

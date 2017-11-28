@@ -65,6 +65,8 @@ const INFERENCE_IMAGE_SIZE_PX = 50;
  */
 const INFERENCE_EXAMPLE_INTERVAL_MS = 3000;
 
+const TARGET_EVALUATION_EXAMPLE_AMOUNT = 40000;
+
 // Smoothing factor for the examples/s standalone text statistic.
 const EXAMPLE_SEC_STAT_SMOOTHING_FACTOR = .7;
 
@@ -182,6 +184,9 @@ btn_infer.addEventListener('click', () => {
 
 var ulBtns = document.querySelectorAll(".upload");
 
+var targetEvalAmountElt = document.querySelector("#targetEvalAmount");
+targetEvalAmountElt.innerHTML = `Target Eval Amount: ${TARGET_EVALUATION_EXAMPLE_AMOUNT}`;
+
 // ----------------------- application initialization and monitor ----------------------
 
 
@@ -221,7 +226,7 @@ function monitor() {
         btn_infer.disabled = true;
         btn_infer.className = 'btn btn-default btn-md paper';
         btn_infer.value = 'Downloading data ...';
-        models.forEach(m => m.btn_eval.style.visibility = 'hidden');
+        models.forEach(m => m.btn_eval.disabled = true);
         ulBtns.forEach(elt => elt.style.visibility = 'hidden');
 
     } else {
@@ -231,7 +236,7 @@ function monitor() {
                 btn_infer.className = 'btn btn-default btn-md paper';
                 btn_infer.disabled = false;
 
-                models.forEach(m => m.btn_eval.style.visibility = 'visible');
+                models.forEach(m => m.btn_eval.disabled = false);
                 ulBtns.forEach(elt => elt.style.visibility = 'visible');
 
                 if (infer_paused) {
