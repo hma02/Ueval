@@ -126,7 +126,7 @@ var config = {
         animation: {
             duration: 0
         },
-        responsive: false,
+        responsive: true,
         scales: {
             xAxes: [{
                 type: 'linear',

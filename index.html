@@ -35,6 +35,7 @@
     <link rel="stylesheet" href="assets/plugins/bootstrap/css/bootstrap.min.css">
     <!-- Plugins CSS -->
     <link rel="stylesheet" href="assets/plugins/font-awesome/css/font-awesome.css">
+    <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
     <!-- Theme CSS -->
     <link id="theme-style" rel="stylesheet" href="assets/css/styles.css">
 
@@ -64,9 +65,29 @@
         }
     }
 
-    .paper {
-        box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3), 0 0 40px rgba(128, 128, 128, 0.1) inset;
-        border-color: #c0c0c0;
+    .box {
+        width: 99%;
+        /* height: 200px; */
+        background: #FFF;
+        /* margin: 40px auto; */
+    }
+
+    .effect6 {
+        /* position: relative; */
+        box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3), 0 0 40px rgba(0, 0, 0, 0.1) inset;
+    }
+
+    .effect6:before,
+    .effect6:after {
+        content: "";
+        position: absolute;
+        z-index: -1;
+        box-shadow: 0 0 20px rgba(0, 0, 0, 0.8);
+        top: 50%;
+        bottom: 0;
+        left: 10px;
+        right: 10px;
+        border-radius: 100px / 10px;
     }
 
     .title {
@@ -193,7 +214,7 @@
                     <p>Click "
                         <b>Infer All</b>" to see samples from data distribution and model distribution.</p>
                     <p>Click "
-                        <b>Evaluate</b>" of each section to evaluate sample quality. </p>
+                        <b>Evaluate</b>" on each card to evaluate sample qualities. </p>
                     <p>Data distribution, as a baseline, has best quality.</p>
 
                     <hr class="divider hidden-lg hidden-md hidden-sm" />
@@ -215,12 +236,14 @@
                 </div>
             </div>
 
-            <hr class="divider" />
+            <br>
+            <br>
 
+            <!-- <hr class="divider" /> -->
 
             <div class="item row">
+                <div class="w3-card col-md-5 col-sm-12 col-xs-12" style="padding:30px;margin-top: 10px;align-items: center;">
 
-                <div class="col-md-6 col-sm-6 col-xs-12">
                     <h5 class="title">Data distribution eval</h5>
                     <input class="btn btn-default btn-md paper" id="buttoneval0" type="submit" value="Evaluate" data-toggle="tooltip" title="evaluate data quality score against data itself as a baseline"
                     />
@@ -233,8 +256,18 @@
                         <div id="evalBar0" style="width: 1%; height: 10px;  background-color: #4CAF50;"></div>
                     </div>
 
+                    <hr class="divider" />
+                    <div class="subtitle">Real Data Distribution:</div>
+                    <div id="image-container0"></div>
+                    <hr class="divider" />
+                    <div class="subtitle">Real Data Eval Result:</div>
+
+                    <canvas id="losschart0" width="155" height="160">chart0</canvas>
+                    <div id="final-score0"></div>
                 </div>
-                <div class="col-md-6 col-sm-6 col-xs-12">
+
+                <div class="w3-card col-md-5 col-md-offset-1 col-sm-12 col-xs-12" style="padding:30px;margin-top: 10px;align-items: center;">
+
                     <h5 class="title">Model/Sample distribution eval</h5>
                     <span>
                         <input class="btn btn-default btn-md paper" id="buttoneval1" type="submit" value="Evaluate" data-toggle="tooltip" title="evaluate sample distribution against data distribution"
@@ -255,39 +288,15 @@
                         <div id="evalBar1" style="width: 1%; height: 10px;  background-color: #4CAF50;"></div>
                     </div>
 
-                </div>
-            </div>
-
-
-            <hr class="divider" />
-
-            <div class="item row">
-
-                <div class="col-md-6 col-sm-12 col-xs-12">
-                    <div class="subtitle">Real Data Distribution:</div>
-                    <div id="image-container0"></div>
-                </div>
-
-                <div class="col-md-6 col-sm-12 col-xs-12">
+                    <hr class="divider" />
                     <div class="subtitle">Generated/Sample Data Distribution:</div>
                     <div id="image-container1"></div>
-                </div>
+                    <hr class="divider" />
 
-            </div>
-
-            <hr class="divider" />
-
-            <div class="item row">
-                <div class="col-md-6 col-sm-12 col-xs-12">
-                    <div class="subtitle">Real Data Eval Result:</div>
-                    <div id="final-score0"></div>
-                    <canvas id="losschart0">chart0</canvas>
-                </div>
-
-                <div class="col-md-6 col-sm-12 col-xs-12">
                     <div class="subtitle">Sample Data Eval Result:</div>
+
+                    <canvas id="losschart1" width="155" height="160">chart1</canvas>
                     <div id="final-score1"></div>
-                    <canvas id="losschart1">chart1</canvas>
                 </div>
 
             </div>
