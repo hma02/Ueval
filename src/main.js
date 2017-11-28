@@ -172,14 +172,15 @@ btn_infer.addEventListener('click', () => {
 
     infer_paused = !infer_paused;
     if (infer_paused) {
-        btn_infer.value = 'Start Inferring';
         if (models.length > 0) {
             models.forEach(m => m.stopInference()); // can return quickly
         }
     } else {
         infer_request = true;
-        btn_infer.value = 'Pause Inferring';
     }
+
+    ga('send', 'event', 'Ueval', 'click', 'Infer All', 40);
+
 });
 
 var ulBtns = document.querySelectorAll(".upload");

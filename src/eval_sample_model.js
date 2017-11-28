@@ -335,6 +335,7 @@ class EvalSampleModel {
             this.evalProgressBarBackground.style.visibility = 'visible';
         }
         if (this.examplesEvaluated >= this.targetEvalExampleAmount) {
+            this.graphRunner.totalBatchesEvaluated = 0;
             this.btn_eval.click();
         }
 
@@ -396,6 +397,10 @@ class EvalSampleModel {
             if (this.getBatchesEvaluated() > 0) {
                 this.resumeEvaluating();
             } else {
+
+                if (this.critLossGraph.pts.length > 0) {
+                    this.critLossGraph.pts = [];
+                }
                 this.startEvalulating();
             }
 

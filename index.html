@@ -55,12 +55,12 @@
             max-width: 95%;
         }
         .main-wrapper {
-            padding: 5px;
+            padding: 20px;
         }
         .main-wrapper .time {
             position: static;
             display: block;
-            margin-top: 5px;
+            margin-top: 10px;
         }
     }
     /* Base Button Style */
@@ -181,17 +181,17 @@
                 }
             </style>
 
-            <h4>Unsupervisely evaluate sample qualities in browser</h4>
-            <p>Click "
-                <b>Infer All</b>" to see samples from data distribution and model distribution.</p>
-            <p>Click "
-                <b>Evaluate</b>" of each section to evaluate sample quality. </p>
-            <p>Data section, as a baseline, has best quality.</p>
-            <hr class="divider" />
             <div class="item row">
                 <div class="col-md-6 col-sm-6 col-xs-12">
-                    <input class="btn btn-default btn-md paper" data-toggle="tooltip" title="Start/Stop inferencing all samples" id="buttoninfer"
-                        type="submit" value="Infer All" />
+                    <h4>Unsupervisely evaluate sample qualities in browser</h4>
+                    <p>Click "
+                        <b>Infer All</b>" to see samples from data distribution and model distribution.</p>
+                    <p>Click "
+                        <b>Evaluate</b>" of each section to evaluate sample quality. </p>
+                    <p>Data section, as a baseline, has best quality.</p>
+
+                    <hr class="divider hidden-lg hidden-md hidden-sm" />
+
                 </div>
                 <div class="col-md-6 col-sm-6 col-xs-12">
                     <div class="form-group">
@@ -202,6 +202,10 @@
                         </select>
                     </div>
                     <div id="targetEvalAmount"></div>
+                    <br>
+                    <br>
+                    <input class="btn btn-default btn-md paper" data-toggle="tooltip" title="Start/Stop inferencing all samples" id="buttoninfer"
+                        type="submit" value="Infer All" />
                 </div>
             </div>
 
@@ -283,20 +287,18 @@
 
             </div>
 
-            <hr class="divider" />
-            <br>
-            <br>
-
-            <div class="item row" style="margin: 0 auto;max-width:80%">
-                <div id="disqus_thread"></div>
-                <noscript>Please enable JavaScript to view the
-                    <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a>
-                </noscript>
-            </div>
-
-
         </div>
 
+    </div>
+
+    <br>
+    <br>
+
+    <div class="item row" style="margin: 0 auto;max-width:80%">
+        <div id="disqus_thread"></div>
+        <noscript>Please enable JavaScript to view the
+            <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a>
+        </noscript>
     </div>
 
     <footer class="footer">
