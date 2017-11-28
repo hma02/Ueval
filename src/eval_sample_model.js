@@ -1,3 +1,9 @@
+// TODOs:
+// 1. make critic Initialization same by setting random seed
+// 2. display loss graph using chart
+// 3. add progress bar by monitoring examples-evaluated / batches-trained
+// 4. add least square divergence
+
 class Net { // gen or disc or critic
     constructor(name, archType, modelConfigs) {
         this.name = name;
@@ -82,10 +88,12 @@ function setupUploadWeightsButton(fileInput, model) {
     });
 }
 
-
 function buildImageContainer(inferenceContainer, model) {
 
     inferenceContainer.innerHTML = '';
+    inferenceContainer.style.lineHeight = "1";
+    inferenceContainer.style.minWidth = '155px';
+    inferenceContainer.style.minHeight = '155px';
 
     for (let i = 0; i < INFERENCE_EXAMPLE_COUNT; i++) {
 
@@ -101,10 +109,10 @@ function buildImageContainer(inferenceContainer, model) {
         // Set up the input visualizer.
         const ndarrayImageVisualizer = new NDArrayImageVisualizer(inferenceExampleElement)
 
-        ndarrayImageVisualizer.setShape(model.generatorNet.outputShape);
+        ndarrayImageVisualizer.setShape(model.criticNet.inputShape);
         ndarrayImageVisualizer.setSize(
             INFERENCE_IMAGE_SIZE_PX, INFERENCE_IMAGE_SIZE_PX);
-        model.inputNDArrayVisualizers.push(ndarrayImageVisualizer);
+        model.ndarrayVisualizers.push(ndarrayImageVisualizer);
 
         inferenceContainer.appendChild(inferenceExampleElement);
     }
@@ -180,15 +188,24 @@ class EvalSampleModel {
 
     initialize() {
 
+
+
         this.loadNetFromPath(this.criticNet.path, this.criticNet);
         if (this.needGen) {
             this.loadNetFromPath(this.generatorNet.path, this.generatorNet);
-            const fileInput = document.querySelector('#weights-file');
+
+            this.genWeightsloaded = false;
+            var genWeightsPath = 'src/700s_gen_weights.json';
+            this.loadGenWeightsFromPath(genWeightsPath);
+
+            const fileInput = document.querySelector('#weights-file' + `${this.id}`);
             setupUploadWeightsButton(fileInput, this);
         }
 
+
+
         // image visualizers
-        this.inputNDArrayVisualizers = [];
+        this.ndarrayVisualizers = [];
         this.visualizerElt = document.querySelector('#image-container' + `${this.id}`);
         buildImageContainer(this.visualizerElt, this);
 
@@ -212,10 +229,8 @@ class EvalSampleModel {
 
             if (this.eval_paused) {
                 this.stopEvaluating(); // can return quickly
-                this.btn_eval.value = 'Start Evaluating';
             } else {
                 this.eval_request = true;
-                this.btn_eval.value = 'Pause Evaluating';
             }
         });
     }
@@ -235,10 +250,16 @@ class EvalSampleModel {
                 this.isValid = this.criticNet.isValid
             }
 
-            console.log(`${which.name}valid`, which.isValid, 'allvalid:', this.isValid);
+            console.log('model ID:', this.id, `${which.name}valid`, which.isValid, 'allvalid:', this.isValid, 'genloaded:', this.genWeightsloaded);
 
-            if (this.isValid) {
-                this.createModel();
+            if (this.needGen) {
+                if (this.isValid && this.genWeightsloaded) {
+                    this.createModel(this.loadedWeights);
+                }
+            } else {
+                if (this.isValid) {
+                    this.createModel();
+                }
             }
 
         };
@@ -247,6 +268,36 @@ class EvalSampleModel {
                 'Model could not be fetched from ' + modelPath + ': ' + error);
         };
         xhr.send();
+    }
+
+    loadGenWeightsFromPath(genWeightsPath) {
+
+        const _xhr = new XMLHttpRequest();
+        _xhr.open('GET', genWeightsPath);
+        _xhr.onload = () => {
+            var weightsJson = _xhr.responseText;
+            this.loadedWeights = JSON.parse(weightsJson);
+
+            this.genWeightsloaded = true
+
+            console.log('model ID:', this.id, 'allvalid:', this.isValid, 'genloaded:', this.genWeightsloaded);
+            if (this.needGen) {
+                if (this.isValid && this.genWeightsloaded) {
+                    this.createModel(this.loadedWeights);
+                }
+            } else {
+                if (this.isValid) {
+                    this.createModel();
+                }
+            }
+
+        }
+        _xhr.onerror = (error) => {
+            throw new Error(
+                'Model could not be fetched from ' + genWeightsPath + ': ' + error);
+        };
+        _xhr.send();
+
     }
 
     displayCost(avgCost, batchesEvaluated) {
@@ -295,13 +346,13 @@ class EvalSampleModel {
             dataSet.unnormalizeExamples(fakeImages, IMAGE_DATA_INDEX);
 
         for (let i = 0; i < inferenceOutputs.length; i++) {
-            // inputNDArrayVisualizers[i].saveImageDataFromNDArray(realImages[i]);
-            this.inputNDArrayVisualizers[i].saveImageDataFromNDArray(fakeImages[i]);
+            // ndarrayVisualizers[i].saveImageDataFromNDArray(realImages[i]);
+            this.ndarrayVisualizers[i].saveImageDataFromNDArray(fakeImages[i]);
         }
 
         for (let i = 0; i < inferenceOutputs.length; i++) {
-            // inputNDArrayVisualizers[i].draw();
-            this.inputNDArrayVisualizers[i].draw();
+            // ndarrayVisualizers[i].draw();
+            this.ndarrayVisualizers[i].draw();
 
         }
     }
@@ -309,14 +360,24 @@ class EvalSampleModel {
     monitorEvalRequestAndUpdateUI() {
 
         if (this.eval_paused) {
-            this.btn_eval.value = 'Start Evaluating'
+            if (this.getBatchesEvaluated() > 0) {
+                this.btn_eval.value = 'Resume';
+            } else {
+                this.btn_eval.value = 'Evaluate';
+            }
         } else {
-            this.btn_eval.value = 'Stop Evaluating'
+            this.btn_eval.value = 'Pause'
         }
 
         if (this.eval_request) {
             this.eval_request = false;
-            this.startEvalulating();
+
+            if (this.getBatchesEvaluated() > 0) {
+                this.resumeEvaluating();
+            } else {
+                this.startEvalulating();
+            }
+
         }
 
     }
@@ -325,6 +386,7 @@ class EvalSampleModel {
 
         this.modelInitialized = false;
         if (this.isValid === false) {
+            console.log('returning');
             return;
         }
 
@@ -420,7 +482,11 @@ class EvalSampleModel {
 
         this.modelInitialized = true;
 
-        console.log('model initialized = true');
+        console.log('modelid', this.id, 'initialized = true');
+    }
+
+    getBatchesEvaluated() {
+        return this.graphRunner.getTotalBatchesEvaluated()
     }
 
     startInference() {
@@ -457,8 +523,8 @@ class EvalSampleModel {
                     data: inputImageProvider
                 },
                 {
-                    tensor: this.randomTensor,
-                    data: getRandomInputProvider(this.generatorNet.inputShape)
+                    tensor: this.needGen ? this.randomTensor : this.x0Tensor,
+                    data: this.needGen ? getRandomInputProvider(this.generatorNet.inputShape) : inputImageProvider
                 },
                 {
                     tensor: this.oneTensor,
@@ -485,6 +551,10 @@ class EvalSampleModel {
     stopEvaluating() {
 
         this.graphRunner.stopEvaluating();
+    }
+
+    resumeEvaluating() {
+        this.graphRunner.resumeEvaluating();
     }
 
     startEvalulating() {
@@ -526,22 +596,8 @@ class EvalSampleModel {
                     data: inputImageProvider
                 },
                 {
-                    tensor: this.randomTensor,
-                    data: getRandomInputProvider(this.generatorNet.inputShape)
-                },
-                {
-                    tensor: this.oneTensor,
-                    data: oneInputProvider
-                },
-                {
-                    tensor: this.zeroTensor,
-                    data: zeroInputProvider
-                }
-            ]
-
-            const genFeeds = [{
-                    tensor: this.randomTensor,
-                    data: getRandomInputProvider(this.generatorNet.inputShape)
+                    tensor: this.needGen ? this.randomTensor : this.x0Tensor,
+                    data: this.needGen ? getRandomInputProvider(this.generatorNet.inputShape) : inputImageProvider
                 },
                 {
                     tensor: this.oneTensor,
@@ -554,7 +610,7 @@ class EvalSampleModel {
             ]
 
             this.graphRunner.evaluate(
-                this.critLoss, null, critFeeds, genFeeds, batchSize,
+                this.critLoss, null, critFeeds, null, batchSize,
                 critOptimizer, null, undefined, COST_INTERVAL_MS);
 
             // showEvalStats = true;
@@ -564,6 +620,10 @@ class EvalSampleModel {
 
 }
 
+function getImageDataOnly() {
+    const [images, labels] = dataSet.getData();
+    return images
+}
 
 function getRandomInputProvider(shape) {
     return {

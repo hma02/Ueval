@@ -46,13 +46,16 @@
 <style>
     .main-wrapper {
         background: #fff;
-        padding: 20px;
+        padding: 30px;
         padding-right: 300px;
     }
 
     @media (max-width: 767px) {
+        .wrapper {
+            max-width: 95%;
+        }
         .main-wrapper {
-            padding: 10px;
+            padding: 5px;
         }
         .main-wrapper .time {
             position: static;
@@ -60,16 +63,11 @@
             margin-top: 5px;
         }
     }
+    /* Base Button Style */
 
-    .ink-panel {
-        /* display: flex; */
-        /* flex-direction: column; */
-        font-size: 14px;
-    }
-
-    .subtitle {
-        font-size: 15px;
-        font-weight: bold;
+    .paper {
+        box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3), 0 0 40px rgba(128, 128, 128, 0.1) inset;
+        border-color: #c0c0c0;
     }
 
     .title {
@@ -80,9 +78,15 @@
         font-weight: 500;
         height: 20px;
         min-height: 20px;
-        padding-top: 20px;
-        padding-left: 20px;
+        /* padding-top: 10px; */
+        padding-bottom: 10px;
+        /* padding-left: 20px; */
         text-transform: uppercase;
+    }
+
+    .subtitle {
+        font-size: 15px;
+        font-weight: bold;
     }
 
     .train-stats-message {
@@ -92,8 +96,8 @@
     .inference-example {
         /* display: flex; */
         /* justify-content: flex-start; */
-        margin-bottom: 10px;
-        margin-left: 10px
+        margin-bottom: 0px;
+        margin-left: 1px
     }
     /* ----------------------------*/
 
@@ -117,13 +121,15 @@
 
             <div class="contact-container container-block">
                 <div class="jumbotron">
-                    <!-- <h2>
+                    <h2>
                         Ueval</h2>
-                    <p style='font-size:1.2em'>This demo is refactored from deeplearn_gan. It shows how to unsupervisely evaluate unsupervisely generated examples (end to end, no external
-                        model needed, no data labels needed).
-                    </p> -->
+                    <p style='font-size:1.2em'>This demo is refactored from
+                        <a href="https://github.com/reiinakano/gan-playground">gan-playground</a> which is based on
+                        <a href="https://deeplearnjs.org">deeplearnjs</a>. It shows how to unsupervisely evaluate generated sample qualities by using divergence
+                        metrics (end to end, no external model needed, no data labels needed).
+                    </p>
                 </div>
-                <p>Last Update: 2017-11-23</p>
+                <p>Last Update: 2017-11-27</p>
                 <p>
                     <a href="https://github.com/PAIR-code/deeplearnjs/blob/master/LICENSE">DeeplearnJS's Apache License</a>
                     <a href="https://github.com/hma02/Ueval/blob/master/LICENSE">Ueval's MIT License</a>
@@ -134,10 +140,17 @@
         </div>
 
         <div class="main-wrapper">
-
+            <h4>Unsupervisely evaluate sample qualities in browser</h4>
+            <p>Click "
+                <b>Infer All</b>" to see samples from data distribution and model distribution.</p>
+            <p>Click "
+                <b>Evaluate</b>" of each section to evaluate sample quality. </p>
+            <p>Data section, as a baseline, has best quality.</p>
+            <hr class="divider" />
             <div class="item row">
                 <div class="col-md-6 col-sm-6 col-xs-12">
-                    <input class="btn btn-primary btn-md" id="buttoninfer" type="submit" value="Start Inferring" />
+                    <input class="btn btn-default btn-md paper" data-toggle="tooltip" title="Start/Stop inferencing all samples" id="buttoninfer"
+                        type="submit" value="Infer All" />
                 </div>
                 <div class="col-md-6 col-sm-6 col-xs-12">
                     <div class="form-group">
@@ -150,28 +163,38 @@
                 </div>
             </div>
 
-
             <hr class="divider" />
 
 
             <div class="item row">
 
-                <div class="col-md-6 col-sm-6 col-xs-12">
-                    <input class="btn btn-primary btn-md" id="buttoneval1" type="submit" value="Start Evaluating" />
+                <div class="col-md-6 col-sm-6 col-xs-12" style="border-right: thin solid #e0e0e0;">
+                    <h5 class="title">Data distribution</h5>
+                    <input class="btn btn-default btn-md paper" id="buttoneval0" type="submit" value="Evaluate" />
+                    <br>
+                    <br>
                     <div class="subtitle">Real Image data eval stats:</div>
-                    <div class="train-stats-message" id="evalExamplesPerSec1">Eval Examples/sec: </div>
-                    <div class="train-stats-message" id="examplesEvaluated1">Examples evaluated:</div>
-                </div>
-                <div class="col-md-6 col-sm-6 col-xs-12">
-                    <input class="btn btn-primary btn-md" id="buttoneval0" type="submit" value="Start Evaluating" />
-                    <div class="subtitle">generated image eval stats:</div>
                     <div class="train-stats-message" id="evalExamplesPerSec0">Eval Examples/sec: </div>
                     <div class="train-stats-message" id="examplesEvaluated0">Examples evaluated:</div>
+                </div>
+                <div class="col-md-6 col-sm-6 col-xs-12">
+                    <h5 class="title">Model distribution</h5>
+                    <span>
+                        <input class="btn btn-default btn-md paper" id="buttoneval1" type="submit" value="Evaluate" />
 
-                    <label class="btn btn-default btn-file">
-                        Upload Gen Weights
-                        <input type="file" id="weights-file" name="weights-file" style="display: none;" />
-                    </label>
+                        <label class="upload btn btn-default btn-file" data-toggle="tooltip" title="Upload generator weights to evaluate its samples, you can download weights from the GAN demo">
+                            <i class="fa fa-upload" aria-hidden="true"></i> Upload
+                            <input type="file" id="weights-file1" name="weights-file1" style="display: none;" />
+                        </label>
+                    </span>
+
+                    <br>
+                    <br>
+                    <div class="subtitle">generated image eval stats:</div>
+                    <div class="train-stats-message" id="evalExamplesPerSec1">Eval Examples/sec: </div>
+                    <div class="train-stats-message" id="examplesEvaluated1">Examples evaluated:</div>
+
+
                 </div>
             </div>
 
@@ -180,30 +203,28 @@
 
             <div class="item row">
 
-                <div class="col-md-6 col-sm-6 col-xs-12">
+                <div class="col-md-6 col-sm-6 col-xs-12" style="border-right: thin solid #e0e0e0;">
                     <p>real images</p>
-                    <div id="image-container1"></div>
+                    <div id="image-container0"></div>
                 </div>
 
                 <div class="col-md-6 col-sm-6 col-xs-12">
-                    <p>a good generator</p>
-                    <div id="image-container0"></div>
+                    <p>generated images</p>
+                    <div id="image-container1"></div>
                 </div>
                 <!-- <div id="generated_bad_container">a bad generator</div> -->
 
             </div>
 
-            <br>
-            <br>
             <hr class="divider" />
 
             <div class="item row">
-                <div class="col-md-6 col-sm-6 col-xs-12">
-                    <canvas id="lossgraph1"></canvas>
+                <div class="col-md-6 col-sm-6 col-xs-12" style="border-right: thin solid #e0e0e0;">
+                    <canvas id="lossgraph0"></canvas>
                 </div>
 
                 <div class="col-md-6 col-sm-6 col-xs-12">
-                    <canvas id="lossgraph0"></canvas>
+                    <canvas id="lossgraph1"></canvas>
                 </div>
 
             </div>
@@ -231,7 +252,15 @@
     <script src="https://cs.stanford.edu/people/karpathy/convnetjs/build/vis.js"></script>
     <script src="https://cs.stanford.edu/people/karpathy/convnetjs/build/util.js"></script>
 
+
+    <script>
+        $(document).ready(function () {
+            $('[data-toggle="tooltip"]').tooltip();
+        });
+    </script>
+
     <script type="text/javascript" src="src/main.js"></script>
+
 
 </body>
 

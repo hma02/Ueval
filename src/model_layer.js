@@ -19,6 +19,11 @@ var dl = deeplearn;
 var Graph = dl.Graph;
 var Tensor = dl.Tensor;
 
+
+function getDisplayShape(shape) {
+    return `[${shape}]`;
+}
+
 class ModelLayer {
 
     constructor() {

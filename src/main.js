@@ -96,15 +96,6 @@ var mathCPU = new NDArrayMathCPU();
 
 var applicationState;
 
-function getImageDataOnly() {
-    const [images, labels] = dataSet.getData();
-    return images
-}
-
-function getDisplayShape(shape) {
-    return `[${shape}]`;
-}
-
 // this is a global function for preparing the datasets for all models within this application
 
 function fetchConfig_DownloadData(fetchConfigCallback) {
@@ -144,14 +135,15 @@ var models = [];
 
 function buildModels(xhrDatasetConfigs, selectedDatasetName) {
     const modelConfigs = xhrDatasetConfigs[selectedDatasetName].modelConfigs;
+
+    var evalModelRealImage = new EvalSampleModel(modelConfigs, models.length, false);
+    evalModelRealImage.initialize();
+    models.push(evalModelRealImage);
+
     var evalModel = new EvalSampleModel(modelConfigs, models.length);
     evalModel.initialize();
     models.push(evalModel);
 
-
-    // var evalModelRealImage = new EvalSampleModel(modelConfigs, models.length, false);
-    // evalModelRealImage.initialize();
-    // models.push(evalModelRealImage);
 }
 
 // --------------------  display and control  -------------------------------
@@ -187,6 +179,8 @@ btn_infer.addEventListener('click', () => {
         btn_infer.value = 'Pause Inferring';
     }
 });
+
+var ulBtns = document.querySelectorAll(".upload");
 
 // ----------------------- application initialization and monitor ----------------------
 
@@ -225,21 +219,25 @@ function monitor() {
 
     if (datasetDownloaded == false) {
         btn_infer.disabled = true;
+        btn_infer.className = 'btn btn-default btn-md paper';
         btn_infer.value = 'Downloading data ...';
         models.forEach(m => m.btn_eval.style.visibility = 'hidden');
+        ulBtns.forEach(elt => elt.style.visibility = 'hidden');
 
     } else {
         if (models.every(m => m.isValid)) {
             if (models.every(m => m.modelInitialized)) {
 
+                btn_infer.className = 'btn btn-default btn-md paper';
                 btn_infer.disabled = false;
-                // Before clicking the eval button, first load a pre-trained model to evaluate its samples against real images.Evaluate real images against real images not implemented yet.
+
                 models.forEach(m => m.btn_eval.style.visibility = 'visible');
+                ulBtns.forEach(elt => elt.style.visibility = 'visible');
 
                 if (infer_paused) {
-                    btn_infer.value = 'Start All Infering'
+                    btn_infer.value = 'Infer All'
                 } else {
-                    btn_infer.value = 'Stop All Infering'
+                    btn_infer.value = 'Stop Infering'
                 }
 
                 if (infer_request) {
@@ -250,13 +248,13 @@ function monitor() {
                 models.forEach(m => m.monitorEvalRequestAndUpdateUI());
 
             } else {
-                btn_infer.className = 'btn btn-primary btn-md';
+                btn_infer.className = 'btn btn-default btn-md paper';
                 btn_infer.disabled = true;
                 btn_infer.value = 'Initializing Model ...'
 
             }
         } else {
-            btn_infer.className = 'btn btn-danger btn-md';
+            btn_infer.className = 'btn btn-danger btn-md paper';
             btn_infer.disabled = true;
             btn_infer.value = 'Model not valid'
         }
