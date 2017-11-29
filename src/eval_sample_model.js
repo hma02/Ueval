@@ -1,6 +1,5 @@
 // TODOs:
-// 1. make critic Initialization same by setting random seed
-// 2. display loss graph using chart
+// 1. made critic Initialization same by setting random seed, but can't make input provider Math.random() with a seed
 // 3. upload images to evaluate
 // 4. add least square divergence
 // 5. add credit to collabrators

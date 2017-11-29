@@ -143,12 +143,12 @@
                 <div class="jumbotron">
                     <h2>
                         Ueval</h2>
-                    <p style='font-size:1.2em'>This demo is practice of using deeplearnjs. It is refactored from
+                    <p style='font-size:1.2em'>This demo is a practice of using deeplearnjs. It is refactored from
                         <a href="https://github.com/reiinakano/gan-playground">gan-playground</a> which is based on the
                         <a href="https://deeplearnjs.org/demos/model-builder/">model-builder demo</a>.
                     </p>
                 </div>
-                <p>Last Update: 2017-11-27</p>
+                <p>Last Update: 2017-11-29</p>
 
                 <p>
                     <a href="https://github.com/hma02/Ueval/blob/master/LICENSE">Ueval's MIT License</a>
@@ -207,15 +207,16 @@
             <div class="item row">
                 <div class="col-md-6 col-sm-12 col-xs-12">
                     <h4>Unsupervisely evaluate sample qualities in browser</h4>
-                    <p>This web demo is for supporting our recent research paper under review. It shows how to unsupervisely
-                        evaluate generated sample quality by constructing a critic network based on certain divergence metrics
-                        (end to end, no external model needed, no data labels needed).
+                    <p>This web demo is for supporting our recent research
+                        <a href="https://openreview.net/forum?id=SJQHjzZ0-">paper</a> under review. It shows how to unsupervisely evaluate generated sample quality by constructing
+                        a critic network based on certain divergence metrics (end to end, no external model needed, no data
+                        labels needed).
                     </p>
                     <p>Click "
                         <b>Infer All</b>" to see samples from data distribution and model distribution.</p>
                     <p>Click "
                         <b>Evaluate</b>" on each card to evaluate sample qualities. </p>
-                    <p>Data distribution, as a baseline, has best quality.</p>
+                    <p>Data distribution, as a baseline, has the best quality.</p>
 
                     <hr class="divider hidden-lg hidden-md hidden-sm" />
 
@@ -300,15 +301,39 @@
                 </div>
 
             </div>
-
         </div>
 
     </div>
-
+    <br>
+    <br>
+    <br>
+    <br>
     <br>
     <br>
 
-    <div class="item row" style="margin: 0 auto;max-width:80%">
+    <div style="margin: 0 auto;max-width:70%">
+        <h4>Credits:</h4>
+        <ul>
+            <li>Collabrators on the project (Hidden for now for the blind review process of the paper)</li>
+            <li>Authors of
+                <a href="https://deeplearnjs.org/index.html">Deeplearnjs</a>
+            </li>
+            <li>Author of gan-playground:
+                <a href="https://github.com/reiinakano">Reiichiro Nakano</a>
+            </li>
+        </ul>
+    </div>
+
+
+    <br>
+    <br>
+    <hr class="divider" />
+    <br>
+    <br>
+    <br>
+    <br>
+
+    <div class="item row" style="margin: 0 auto;max-width:70%">
         <div id="disqus_thread"></div>
         <noscript>Please enable JavaScript to view the
             <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a>
@@ -355,7 +380,7 @@
     </script>
 
 
-    <script src="https://unpkg.com/deeplearn"></script>
+    <script src="https://unpkg.com/deeplearn@0.3.12"></script>
     <!-- detect browser support -->
     <script src="src/support.js"></script>
     <script src="src/utils.js"></script>

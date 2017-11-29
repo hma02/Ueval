@@ -308,7 +308,7 @@ class FullyConnectedLayerBuilder {
             w = Array2D.new(wShape, weights[name + '-fc-w']);
             b = Array1D.new(weights[name + '-fc-b']);
         } else {
-            w = Array2D.randTruncatedNormal(wShape, 0, 0.1);
+            w = Array2D.randTruncatedNormal(wShape, 0, 0.1, null, INITIALIZATION_RANDOM_SEED);
             b = Array1D.zeros([this.hiddenUnits]);
         }
         const wTensor = g.variable(name + '-fc-w', w);
@@ -453,7 +453,7 @@ class Convolution2DLayerBuilder {
             w = Array4D.new(wShape, weights[name + '-conv2d-w']);
             b = Array1D.new(weights[name + '-conv2d-b']);
         } else {
-            w = Array4D.randTruncatedNormal(wShape, 0, 0.1);
+            w = Array4D.randTruncatedNormal(wShape, 0, 0.1, null, INITIALIZATION_RANDOM_SEED); // shape, mean, std, dtype, seed
             b = Array1D.zeros([this.outputDepth]);
         }
         const wTensor = g.variable(name + '-conv2d-w', w);

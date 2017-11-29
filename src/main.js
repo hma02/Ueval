@@ -48,6 +48,7 @@ var XhrDataset = dl.XhrDataset;
 var XhrDatasetConfig = dl.XhrDatasetConfig;
 var ZerosInitializer = dl.ZerosInitializer;
 
+const INITIALIZATION_RANDOM_SEED = 1234;
 
 const DATASETS_CONFIG_JSON = 'src/model-builder-datasets-config.json';
 
