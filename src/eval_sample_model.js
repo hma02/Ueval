@@ -1,8 +1,6 @@
 // TODOs:
 // 1. made critic Initialization same by setting random seed, but can't make input provider Math.random() with a seed
 // 3. upload images to evaluate
-// 4. add least square divergence
-// 5. add credit to collabrators
 
 class Net { // gen or disc or critic
     constructor(name, archType, modelConfigs) {
