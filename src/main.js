@@ -76,6 +76,13 @@ const TRAIN_TEST_RATIO = 5 / 6;
 const IMAGE_DATA_INDEX = 0;
 const LABEL_DATA_INDEX = 1;
 
+const metricNames = {
+    js: 'js', // Jensen-Shannon divergence
+    ls: 'ls' // least square divergence
+}
+
+var METRIC_NAME = metricNames.js;
+
 var datasetDownloaded;
 var dataSet;
 
@@ -100,6 +107,8 @@ var mathCPU = new NDArrayMathCPU();
 var applicationState;
 
 // this is a global function for preparing the datasets for all models within this application
+var selectedDatasetName;
+var xhrDatasetConfigs;
 
 function fetchConfig_DownloadData(fetchConfigCallback) {
     var dataSets = {};
@@ -113,11 +122,12 @@ function fetchConfig_DownloadData(fetchConfigCallback) {
                 }
             }
             var datasetNames = Object.keys(dataSets);
-            var selectedDatasetName = datasetNames[0]; // 0: MNIST,  1: FashionMNIST 2: CIFAR10
+            selectedDatasetName = datasetNames[0]; // 0: MNIST,  1: FashionMNIST 2: CIFAR10
 
             dataSet = dataSets[selectedDatasetName];
+            xhrDatasetConfigs = _xhrDatasetConfigs;
 
-            fetchConfigCallback(_xhrDatasetConfigs, selectedDatasetName);
+            fetchConfigCallback(xhrDatasetConfigs, selectedDatasetName);
 
             datasetDownloaded = false;
 
@@ -189,6 +199,7 @@ var ulBtns = document.querySelectorAll(".upload");
 var targetEvalAmountElt = document.querySelector("#targetEvalAmount");
 targetEvalAmountElt.innerHTML = `Target Eval Amount: ${TARGET_EVALUATION_EXAMPLE_AMOUNT}`;
 
+
 // ----------------------- application initialization and monitor ----------------------
 
 
@@ -212,10 +223,25 @@ function run() {
     envDropdown.options[ind].selected = 'selected';
     updateSelectedEnvironment(selectedEnvName); // change math
 
-    document.querySelector('#environment-dropdown').addEventListener('change', (event) => {
+    envDropdown.addEventListener('change', (event) => {
         selectedEnvName = event.target.value;
         updateSelectedEnvironment(selectedEnvName); // change math
     });
+
+
+    var metricDropdown = document.getElementById("metric-dropdown");
+    METRIC_NAME = metricNames.js;
+    var ind = indexOfDropdownOptions(metricDropdown.options, METRIC_NAME)
+    metricDropdown.options[ind].selected = 'selected';
+
+    metricDropdown.addEventListener('change', (event) => {
+        METRIC_NAME = event.target.value;
+        models = [];
+        if (xhrDatasetConfigs != null && selectedDatasetName != null) {
+            buildModels(xhrDatasetConfigs, selectedDatasetName)
+        }
+    });
+
 
     // Set up datasets.
     fetchConfig_DownloadData(buildModels);

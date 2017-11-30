@@ -160,6 +160,8 @@ class EvalSampleModel {
         }
         this.criticNet = new Net('crit', 'Convolutional', modelConfigs);
 
+        this.metricName = METRIC_NAME;
+
         const eventObserver = {
             batchesEvaluatedCallback: (batchesEvaluated) =>
                 this.displayBatchesEvaluated(batchesEvaluated),
@@ -214,7 +216,7 @@ class EvalSampleModel {
         this.chartElt = document.getElementById('losschart' + `${this.id}`);
         this.chartElt.style.minWidth = '155px';
 
-        this.critLossChart = createChart(this.chartElt, 'js divergence', this.chartData, 0, this.chartData.y);
+        this.critLossChart = createChart(this.chartElt, this.metricName, this.chartData, 0, this.chartData.y);
         this.critLossChart.update();
 
         // batchesEvaluated
@@ -316,7 +318,7 @@ class EvalSampleModel {
 
         var cost = avgCost.get();
 
-        this.finalScoreElt.innerHTML = `${this.critMetricName} Eval Score: ${cost.toPrecision(5)}`;
+        this.finalScoreElt.innerHTML = `${this.metricName} Eval Score: ${cost.toPrecision(5)}`;
 
         this.chartData.push({
             x: batchesEvaluated,
@@ -489,16 +491,38 @@ class EvalSampleModel {
         this.critPredictionReal = crit2;
         this.critPredictionFake = crit1;
 
-        const critLossReal = g.softmaxCrossEntropyCost(
-            this.critPredictionReal,
-            this.oneTensor
-        );
-        const critLossFake = g.softmaxCrossEntropyCost(
-            this.critPredictionFake,
-            this.zeroTensor
-        );
-        this.critLoss = g.add(critLossReal, critLossFake); // js loss
-        this.critMetricName = 'JS divergence';
+        let critLossReal = null;
+        let critLossFake = null;
+        if (this.metricName == 'js') {
+            critLossReal = g.softmaxCrossEntropyCost(
+                this.critPredictionReal,
+                this.oneTensor
+            );
+            critLossFake = g.softmaxCrossEntropyCost(
+                this.critPredictionFake,
+                this.zeroTensor
+            );
+        } else if (this.metricName == 'ls') {
+            critLossReal = g.meanSquaredCost(
+                this.critPredictionReal,
+                this.oneTensor
+            );
+            critLossFake = g.meanSquaredCost(
+                this.critPredictionFake,
+                this.zeroTensor
+            );
+        } else {
+            critLossReal = g.softmaxCrossEntropyCost(
+                this.critPredictionReal,
+                this.oneTensor
+            );
+            critLossFake = g.softmaxCrossEntropyCost(
+                this.critPredictionFake,
+                this.zeroTensor
+            );
+            this.metricName = 'js'
+        }
+        this.critLoss = g.add(critLossReal, critLossFake); // js/ls divergence
 
         if (this.session != null) {
             this.session.dispose()
