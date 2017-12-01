@@ -1,6 +1,8 @@
 // TODOs:
 // 1. made critic Initialization same by setting random seed, but can't make input provider Math.random() with a seed
+// 2. improve UI description
 // 3. upload images to evaluate
+// 4. Get better initial gen from GAN demo
 
 class Net { // gen or disc or critic
     constructor(name, archType, modelConfigs) {
