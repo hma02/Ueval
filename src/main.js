@@ -122,7 +122,7 @@ function fetchConfig_DownloadData(fetchConfigCallback) {
                 }
             }
             var datasetNames = Object.keys(dataSets);
-            selectedDatasetName = datasetNames[0]; // 0: MNIST,  1: FashionMNIST 2: CIFAR10
+            selectedDatasetName = datasetNames[0]; // 0: MNIST 1: FashionMNIST 2:Runes 3: CIFAR10
 
             dataSet = dataSets[selectedDatasetName];
             xhrDatasetConfigs = _xhrDatasetConfigs;
@@ -149,7 +149,7 @@ var models = [];
 function buildModels(xhrDatasetConfigs, selectedDatasetName) {
     const modelConfigs = xhrDatasetConfigs[selectedDatasetName].modelConfigs;
 
-    var evalModelRealImage = new EvalSampleModel(modelConfigs, models.length, false);
+    var evalModelRealImage = new EvalSampleModel(modelConfigs, models.length, false, false);
     evalModelRealImage.initialize();
     models.push(evalModelRealImage);
 
@@ -255,7 +255,7 @@ function monitor() {
         btn_infer.className = 'btn btn-default btn-md paper';
         btn_infer.value = 'Downloading data ...';
         models.forEach(m => m.btn_eval.disabled = true);
-        ulBtns.forEach(elt => elt.style.visibility = 'hidden');
+        ulBtns.forEach(elt => elt.disabled = true);
 
     } else {
         if (models.every(m => m.isValid)) {
@@ -265,7 +265,7 @@ function monitor() {
                 btn_infer.disabled = false;
 
                 models.forEach(m => m.btn_eval.disabled = false);
-                ulBtns.forEach(elt => elt.style.visibility = 'visible');
+                ulBtns.forEach(elt => elt.disabled = false);
 
                 if (infer_paused) {
                     btn_infer.value = 'Infer All'

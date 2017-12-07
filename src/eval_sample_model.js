@@ -146,16 +146,26 @@ function loadNetFromJson(modelJson, which) {
 
 class EvalSampleModel {
 
-    constructor(modelConfigs, id, needGen = true) {
+    constructor(modelConfigs, id, needGen = true, sampleImage = false) {
         this.modelConfigs = modelConfigs;
 
         this.id = id; // prepare for scaling up to multiple models
 
         this.needGen = needGen;
+        this.sampleImage = sampleImage;
 
         if (this.needGen) {
             this.generatorNet = new Net('gen', 'Convolutional', modelConfigs);
+        } else {
+            if (this.sampleImage == true) {
+                console.log('sample image')
+                this.sampleImageLoaded = false;
+                this.getSampleImageDataOnly = null;
+            } else {
+                console.log('real image')
+            }
         }
+
         this.criticNet = new Net('crit', 'Convolutional', modelConfigs);
 
         this.metricName = METRIC_NAME;
@@ -188,7 +198,7 @@ class EvalSampleModel {
 
     initialize() {
 
-
+        this.evalBaseElt = document.getElementById(`eval${this.id}`);
 
         this.loadNetFromPath(this.criticNet.path, this.criticNet);
         if (this.needGen) {
@@ -200,9 +210,17 @@ class EvalSampleModel {
 
             const fileInput = document.querySelector('#weights-file' + `${this.id}`);
             setupUploadWeightsButton(fileInput, this);
+        } else {
+
+            let label = document.getElementById("sample-file-label" + `${this.id}`);
+            if (this.sampleImage) {
+                console.log('visible', this.id)
+                label.style.visibility = 'visible';
+            } else {
+                console.log('hidden', this.id)
+                label.style.visibility = 'hidden';
+            }
         }
-
-
 
         // image visualizers
         this.ndarrayVisualizers = [];
@@ -423,7 +441,7 @@ class EvalSampleModel {
         if (this.needGen) {
             this.randomTensor = g.placeholder('random', this.generatorNet.inputShape);
         } else {
-            this.x0Tensor = g.placeholder('inputReal', this.criticNet.inputShape);
+            this.x0Tensor = g.placeholder('inputSampleImage', this.criticNet.inputShape);
         }
         this.xTensor = g.placeholder('input', this.criticNet.inputShape);
         this.oneTensor = g.placeholder('one', [2]);
@@ -550,6 +568,21 @@ class EvalSampleModel {
             const [inputImageProvider] =
             shuffledInputProviderGenerator.getInputProviders();
 
+            let inputSampleImageProvider;
+            if (!this.needGen) {
+                if (this.sampleImage && this.sampleImageLoaded) {
+                    const sampleImageData = this.getSampleImageDataOnly();
+                    const shuffledInputSampleImageProviderGenerator =
+                        new InCPUMemoryShuffledInputProviderBuilder([sampleImageData]);
+                    [inputSampleImageProvider] =
+                    shuffledInputSampleImageProviderGenerator.getInputProviders();
+                } else {
+                    [inputSampleImageProvider] =
+                    shuffledInputProviderGenerator.getInputProviders();
+                }
+            }
+
+
             const oneInputProvider = {
                 getNextCopy(math) {
                     return Array1D.new([0, 1]);
@@ -574,7 +607,7 @@ class EvalSampleModel {
                 },
                 {
                     tensor: this.needGen ? this.randomTensor : this.x0Tensor,
-                    data: this.needGen ? getRandomInputProvider(this.generatorNet.inputShape) : inputImageProvider
+                    data: this.needGen ? getRandomInputProvider(this.generatorNet.inputShape) : inputSampleImageProvider
                 },
                 {
                     tensor: this.oneTensor,
@@ -623,6 +656,20 @@ class EvalSampleModel {
             const [inputImageProvider] =
             shuffledInputProviderGenerator.getInputProviders();
 
+            let inputSampleImageProvider;
+            if (!this.needGen) {
+                if (this.sampleImage && this.sampleImageLoaded) {
+                    const sampleImageData = this.getSampleImageDataOnly();
+                    const shuffledInputSampleImageProviderGenerator =
+                        new InCPUMemoryShuffledInputProviderBuilder([sampleImageData]);
+                    [inputSampleImageProvider] =
+                    shuffledInputSampleImageProviderGenerator.getInputProviders();
+                } else {
+                    [inputSampleImageProvider] =
+                    shuffledInputProviderGenerator.getInputProviders();
+                }
+            }
+
             const oneInputProvider = {
                 getNextCopy(math) {
                     return Array1D.new([0, 1]);
@@ -647,7 +694,7 @@ class EvalSampleModel {
                 },
                 {
                     tensor: this.needGen ? this.randomTensor : this.x0Tensor,
-                    data: this.needGen ? getRandomInputProvider(this.generatorNet.inputShape) : inputImageProvider
+                    data: this.needGen ? getRandomInputProvider(this.generatorNet.inputShape) : inputSampleImageProvider
                 },
                 {
                     tensor: this.oneTensor,

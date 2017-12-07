@@ -250,12 +250,20 @@
 
             <!-- <hr class="divider" /> -->
 
-            <div class="item row">
-                <div class="w3-card col-md-5 col-sm-12 col-xs-12" style="padding:30px;margin-top: 10px;align-items: center;">
+            <div class="item row" id="eval">
+                <div class="w3-card col-md-5 col-sm-12 col-xs-12" id="eval0" style="padding:30px;margin-top: 10px;align-items: center;">
 
                     <h6 class="title">Real Data</h6>
-                    <input class="btn btn-default btn-md paper" id="buttoneval0" type="submit" value="Evaluate" data-toggle="tooltip" title="evaluate data quality score against data itself as a baseline"
-                    />
+                    <span>
+                        <input class="btn btn-default btn-md paper" id="buttoneval0" type="submit" value="Evaluate" data-toggle="tooltip" title="evaluate data quality score against data itself as a baseline"
+                        />
+
+                        <label class="btn btn-default btn-file" data-toggle="tooltip" title="Upload sample image (png) to be evaluated " style="visibility:hidden;"
+                            id="sample-file-label0">
+                            <i class="fa fa-upload" aria-hidden="true"></i> Upload
+                            <input class="upload" type="file" id="sample-file0" name="weights-file0" style="display: none;" />
+                        </label>
+                    </span>
                     <br>
                     <br>
 
@@ -275,16 +283,17 @@
                     <div id="final-score0"></div>
                 </div>
 
-                <div class="w3-card col-md-5 col-md-offset-1 col-sm-12 col-xs-12" style="padding:30px;margin-top: 10px;align-items: center;">
+                <div class="w3-card col-md-5 col-md-offset-1 col-sm-12 col-xs-12" id="eval1" style="padding:30px;margin-top: 10px;align-items: center;">
 
                     <h6 class="title">Generated/Sample Data</h6>
                     <span>
                         <input class="btn btn-default btn-md paper" id="buttoneval1" type="submit" value="Evaluate" data-toggle="tooltip" title="evaluate sample distribution against data distribution"
                         />
 
-                        <label class="upload btn btn-default btn-file" data-toggle="tooltip" title="Upload generator weights to evaluate its samples, you can download weights from the GAN demo">
+                        <label class="btn btn-default btn-file" data-toggle="tooltip" title="Upload generator weights to evaluate its samples, you can download weights from the GAN demo"
+                            id="weights-file1-label1">
                             <i class="fa fa-upload" aria-hidden="true"></i> Upload
-                            <input type="file" id="weights-file1" name="weights-file1" style="display: none;" />
+                            <input class="upload" type="file" id="weights-file1" name="weights-file1" style="display: none;" />
                         </label>
                     </span>
 
