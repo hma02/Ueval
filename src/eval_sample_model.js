@@ -195,7 +195,7 @@ class EvalSampleModel {
             this.loadNetFromPath(this.generatorNet.path, this.generatorNet);
 
             this.genWeightsloaded = false;
-            var genWeightsPath = 'src/700s_gen_weights.json';
+            var genWeightsPath = 'src/mnist/4600s_gen_weights.json';
             this.loadGenWeightsFromPath(genWeightsPath);
 
             const fileInput = document.querySelector('#weights-file' + `${this.id}`);

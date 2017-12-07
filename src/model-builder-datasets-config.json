@@ -16,24 +16,24 @@
                 "inputShape": [28, 28, 1],
                 "outputShape": [2],
                 "paths": {
-                    "Fully connected": "src/mnist-fully-connected.json",
-                    "Convolutional": "src/mnist-conv.json"
+                    "Fully connected": "src/mnist/mnist-fully-connected.json",
+                    "Convolutional": "src/mnist/mnist-conv.json"
                 }
             },
             "gen": {
                 "inputShape": [100],
                 "outputShape": [28, 28, 1],
                 "paths": {
-                    "Fully connected": "src/gen-mnist-fully-connected.json",
-                    "Convolutional": "src/gen-mnist-conv.json"
+                    "Fully connected": "src/mnist/gen-mnist-fully-connected.json",
+                    "Convolutional": "src/mnist/gen-mnist-conv.json"
                 }
             },
             "crit": {
                 "inputShape": [28, 28, 1],
                 "outputShape": [2],
                 "paths": {
-                    "Fully connected": "src/mnist-fully-connected.json",
-                    "Convolutional": "src/mnist-conv.json"
+                    "Fully connected": "src/mnist/mnist-fully-connected.json",
+                    "Convolutional": "src/mnist/mnist-conv.json"
                 }
             }
         }
