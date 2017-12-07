@@ -147,13 +147,13 @@ function fetchConfig_DownloadData(fetchConfigCallback) {
 var models = [];
 
 function buildModels(xhrDatasetConfigs, selectedDatasetName) {
-    const modelConfigs = xhrDatasetConfigs[selectedDatasetName].modelConfigs;
+    const configs = xhrDatasetConfigs[selectedDatasetName];
 
-    var evalModelRealImage = new EvalSampleModel(modelConfigs, models.length, false, false);
+    var evalModelRealImage = new EvalSampleModel(configs, models.length, false, true);
     evalModelRealImage.initialize();
     models.push(evalModelRealImage);
 
-    var evalModel = new EvalSampleModel(modelConfigs, models.length);
+    var evalModel = new EvalSampleModel(configs, models.length);
     evalModel.initialize();
     models.push(evalModel);
 

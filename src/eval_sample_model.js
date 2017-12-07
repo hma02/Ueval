@@ -71,8 +71,6 @@ function setupUploadWeightsButton(fileInput, model) {
         const fileReader = new FileReader();
         fileReader.onload = (evt) => {
 
-            // console.log('loaded file:', file, fileInput);
-
             const weightsJson = fileReader.result;
 
             weights = JSON.parse(weightsJson);
@@ -86,6 +84,33 @@ function setupUploadWeightsButton(fileInput, model) {
         };
         fileReader.readAsText(file);
     });
+}
+
+function setupUploadSampleImageButton(fileInput, model) {
+
+    // function imageIsLoaded(e) {
+    //     alert(e);
+    // }
+
+    fileInput.addEventListener('change', function () {
+        if (this.files && this.files[0]) {
+            path = URL.createObjectURL(this.files[0]);
+
+            sampleXhrDatasetConfig = Object.assign({}, model.configs);
+            sampleXhrDatasetConfig.data[0].path = path;
+            model.sampleImageDataSet = new XhrDataset(sampleXhrDatasetConfig);
+            model.sampleImageDataSet.fetchData().then(() => {
+                model.sampleImageDataSet.normalizeWithinBounds(IMAGE_DATA_INDEX, -1, 1);
+                model.sampleImageDataLoaded = true;
+
+                var img = document.querySelector('#sampleImage' + `${model.id}`); // $('img')[0]
+                img.style.visibility = 'visible';
+                img.src = path; // set src to file url
+                img.onload = null; //imageIsLoaded // optional onload event listener
+            });
+        }
+    });
+
 }
 
 function buildImageContainer(inferenceContainer, model) {
@@ -148,8 +173,9 @@ function loadNetFromJson(modelJson, which) {
 
 class EvalSampleModel {
 
-    constructor(modelConfigs, id, needGen = true, sampleImage = false) {
-        this.modelConfigs = modelConfigs;
+    constructor(configs, id, needGen = true, sampleImage = false) {
+        this.configs = configs;
+        this.modelConfigs = this.configs.modelConfigs;
 
         this.id = id; // prepare for scaling up to multiple models
 
@@ -157,18 +183,15 @@ class EvalSampleModel {
         this.sampleImage = sampleImage;
 
         if (this.needGen) {
-            this.generatorNet = new Net('gen', 'Convolutional', modelConfigs);
+            this.generatorNet = new Net('gen', 'Convolutional', this.modelConfigs);
         } else {
             if (this.sampleImage == true) {
-                console.log('sample image')
-                this.sampleImageLoaded = false;
-                this.getSampleImageDataOnly = null;
-            } else {
-                console.log('real image')
+                this.sampleImageDataLoaded = false;
+                this.sampleImageDataSet = null;
             }
         }
 
-        this.criticNet = new Net('crit', 'Convolutional', modelConfigs);
+        this.criticNet = new Net('crit', 'Convolutional', this.modelConfigs);
 
         this.metricName = METRIC_NAME;
 
@@ -213,13 +236,12 @@ class EvalSampleModel {
             const fileInput = document.querySelector('#weights-file' + `${this.id}`);
             setupUploadWeightsButton(fileInput, this);
         } else {
-
             let label = document.getElementById("sample-file-label" + `${this.id}`);
             if (this.sampleImage) {
-                console.log('visible', this.id)
                 label.style.visibility = 'visible';
+                const sampleFileInput = document.querySelector('#sample-file' + `${this.id}`);
+                setupUploadSampleImageButton(sampleFileInput, this);
             } else {
-                console.log('hidden', this.id)
                 label.style.visibility = 'hidden';
             }
         }
@@ -560,7 +582,7 @@ class EvalSampleModel {
     }
 
     startInference() {
-        const data = getImageDataOnly();
+        const data = getImageDataOnly(dataSet);
         if (data == null) {
             return;
         }
@@ -572,8 +594,8 @@ class EvalSampleModel {
 
             let inputSampleImageProvider;
             if (!this.needGen) {
-                if (this.sampleImage && this.sampleImageLoaded) {
-                    const sampleImageData = this.getSampleImageDataOnly();
+                if (this.sampleImage && this.sampleImageDataLoaded) {
+                    const sampleImageData = getImageDataOnly(this.sampleImageDataSet);
                     const shuffledInputSampleImageProviderGenerator =
                         new InCPUMemoryShuffledInputProviderBuilder([sampleImageData]);
                     [inputSampleImageProvider] =
@@ -643,7 +665,7 @@ class EvalSampleModel {
     }
 
     startEvalulating() {
-        const data = getImageDataOnly();
+        const data = getImageDataOnly(dataSet);
 
         // Recreate optimizer with the selected optimizer and hyperparameters.
         let critOptimizer = createOptimizer('crit', this.graph); // for js, exact same optimizer
@@ -660,8 +682,8 @@ class EvalSampleModel {
 
             let inputSampleImageProvider;
             if (!this.needGen) {
-                if (this.sampleImage && this.sampleImageLoaded) {
-                    const sampleImageData = this.getSampleImageDataOnly();
+                if (this.sampleImage && this.sampleImageDataLoaded) {
+                    const sampleImageData = getImageDataOnly(this.sampleImageDataSet);
                     const shuffledInputSampleImageProviderGenerator =
                         new InCPUMemoryShuffledInputProviderBuilder([sampleImageData]);
                     [inputSampleImageProvider] =
@@ -719,7 +741,7 @@ class EvalSampleModel {
 
 }
 
-function getImageDataOnly() {
+function getImageDataOnly(dataSet) {
     const [images, labels] = dataSet.getData();
     return images
 }
