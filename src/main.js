@@ -149,13 +149,17 @@ var models = [];
 function buildModels(xhrDatasetConfigs, selectedDatasetName) {
     const configs = xhrDatasetConfigs[selectedDatasetName];
 
-    var evalModelRealImage = new EvalSampleModel(configs, models.length, false, true);
+    var evalModelRealImage = new EvalSampleModel(configs, models.length, false, false);
     evalModelRealImage.initialize();
     models.push(evalModelRealImage);
 
-    var evalModel = new EvalSampleModel(configs, models.length);
-    evalModel.initialize();
-    models.push(evalModel);
+    var evalModelGenerator = new EvalSampleModel(configs, models.length, true, false);
+    evalModelGenerator.initialize();
+    models.push(evalModelGenerator);
+
+    var evalModelSampleImage = new EvalSampleModel(configs, models.length, false, true);
+    evalModelSampleImage.initialize();
+    models.push(evalModelSampleImage);
 
 }
 

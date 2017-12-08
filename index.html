@@ -48,8 +48,8 @@
 <style>
     .main-wrapper {
         background: #fff;
-        padding: 30px;
-        padding-right: 300px;
+        padding: 20px;
+        padding-right: 260px;
     }
 
     @media (max-width: 767px) {
@@ -124,6 +124,12 @@
 
     .ndarray-image-visualizer {
         flex-basis: 100px;
+    }
+
+    .mycard {
+        padding: 30px;
+        margin-top: 10px;
+        align-items: center;
     }
 </style>
 
@@ -251,19 +257,18 @@
             <!-- <hr class="divider" /> -->
 
             <div class="item row" id="eval">
-                <div class="w3-card col-md-5 col-sm-12 col-xs-12" id="eval0" style="padding:30px;margin-top: 10px;align-items: center;">
+                <div class="w3-card mycard col-md-4 col-sm-12 col-xs-12" id="eval0">
 
                     <h6 class="title">Real Data</h6>
                     <span>
-                        <input class="btn btn-default btn-md paper" id="buttoneval0" type="submit" value="Evaluate" data-toggle="tooltip" title="evaluate data quality score against data itself as a baseline"
+                        <input class="btn btn-default btn-md paper" id="buttoneval0" type="submit" value="Evaluate" data-toggle="tooltip" title="evaluate real data distribution against itself as a baseline"
                         />
 
-                        <label class="btn btn-default btn-file" data-toggle="tooltip" title="Upload sample image (png) to be evaluated " style="visibility:hidden;"
-                            id="sample-file-label0">
+                        <label class="btn btn-default btn-file" id="sample-file-label0">
                             <i class="fa fa-upload" aria-hidden="true"></i> Upload
-                            <input class="upload" type="file" id="sample-file0" name="weights-file0" style="display: none;" />
+                            <input class="upload" type="file" id="sample-file0" name="sample-file0" style="display: none;" />
                         </label>
-                        <img id="sampleImage0" src="#" alt="your sample image" height=30 width=30 style="visibility:hidden;">
+                        <img id="sampleImage0" src="#" alt="" height=30 width=30 style="visibility:hidden;">
                     </span>
                     <br>
                     <br>
@@ -281,14 +286,14 @@
                     <div class="subtitle">Real Data Eval Result:</div>
 
                     <canvas id="losschart0" width="155" height="160">chart0</canvas>
-                    <div id="final-score0"></div>
+                    <div id="final-score0" style="min-height:20px"></div>
                 </div>
 
-                <div class="w3-card col-md-5 col-md-offset-1 col-sm-12 col-xs-12" id="eval1" style="padding:30px;margin-top: 10px;align-items: center;">
+                <div class="w3-card mycard col-md-4 col-sm-12 col-xs-12" id="eval1">
 
-                    <h6 class="title">Generated/Sample Data</h6>
+                    <h6 class="title">Generator of a GAN</h6>
                     <span>
-                        <input class="btn btn-default btn-md paper" id="buttoneval1" type="submit" value="Evaluate" data-toggle="tooltip" title="evaluate sample distribution against data distribution"
+                        <input class="btn btn-default btn-md paper" id="buttoneval1" type="submit" value="Evaluate" data-toggle="tooltip" title="evaluate generated image distribution against data distribution"
                         />
 
                         <label class="btn btn-default btn-file" data-toggle="tooltip" title="Upload generator weights to evaluate its samples, you can download weights from the GAN demo"
@@ -296,6 +301,7 @@
                             <i class="fa fa-upload" aria-hidden="true"></i> Upload
                             <input class="upload" type="file" id="weights-file1" name="weights-file1" style="display: none;" />
                         </label>
+                        <img id="sampleImage1" src="#" alt="" height=30 width=30 style="visibility:hidden;">
                     </span>
 
                     <br>
@@ -308,14 +314,48 @@
                     </div>
 
                     <hr class="divider" />
-                    <div class="subtitle">Generated/Sample Data Distribution:</div>
+                    <div class="subtitle">Generated Data Distribution:</div>
                     <div id="image-container1"></div>
                     <hr class="divider" />
 
-                    <div class="subtitle">Sample Data Eval Result:</div>
+                    <div class="subtitle">Generated Data Eval Result:</div>
 
                     <canvas id="losschart1" width="155" height="160">chart1</canvas>
-                    <div id="final-score1"></div>
+                    <div id="final-score1" style="min-height:20px"></div>
+                </div>
+
+
+                <div class="w3-card mycard col-md-4 col-sm-12 col-xs-12" id="eval2">
+
+                    <h6 class="title">Upload Sample Data</h6>
+                    <span>
+                        <input class="btn btn-default btn-md paper" id="buttoneval2" type="submit" value="Evaluate" data-toggle="tooltip" title="evaluate uploaded sample image distribution against data distribution"
+                        />
+
+                        <label class="btn btn-default btn-file" data-toggle="tooltip" title="Upload sample image (png) to be evaluated. You can follow the DeeplearnJS's tutorial <Example: Add a new data set to the model builder demo> to put your sample images in a single png."
+                            style="visibility:hidden;" id="sample-file-label2">
+                            <i class="fa fa-upload" aria-hidden="true"></i> Upload
+                            <input class="upload" type="file" id="sample-file2" name="sample-file2" style="display: none;" />
+                        </label>
+                        <img id="sampleImage2" src="#" alt="" height=30 width=30 style="visibility:hidden;">
+                    </span>
+                    <br>
+                    <br>
+
+                    <div class="train-stats-message" id="evalExamplesPerSec2">Eval Examples/sec: </div>
+                    <div class="train-stats-message" id="examplesEvaluated2">Examples evaluated:</div>
+                    <div id="evalBarBackground2" style="width:100%; background-color: #ddd;">
+                        <div id="evalBar2" style="width: 1%; height: 10px;  background-color: #4CAF50;"></div>
+                    </div>
+
+                    <hr class="divider" />
+                    <div class="subtitle">Sample Data Distribution:</div>
+                    <div id="image-container2"></div>
+                    <hr class="divider" />
+                    <div class="subtitle">Sample Data Eval Result:</div>
+
+                    <canvas id="losschart2" width="155" height="160">chart0</canvas>
+                    <div id="final-score2" style="min-height:20px"></div>
                 </div>
 
             </div>
