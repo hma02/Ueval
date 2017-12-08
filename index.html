@@ -85,32 +85,19 @@
 
     .title {
         align-items: center;
-        /* border-bottom: 1px solid rgba(0, 0, 0, 0.1); */
         color: black;
-        /* display: flex;
-        align-items: center;
-        justify-content: center; */
         font-size: 18px;
         font-weight: bold;
-        /* height: 20px; */
-        /* min-height: 20px; */
-        /* padding-top: 10px; */
         padding-bottom: 10px;
-        /* padding-left: 20px; */
         text-transform: uppercase;
     }
 
     .subtitle {
         font-size: 15px;
         margin-bottom: 5px;
-        /* display: flex;
-        align-items: center;
-        justify-content: center; */
     }
 
     .inference-example {
-        /* display: flex; */
-        /* justify-content: flex-start; */
         margin-bottom: 0px;
         margin-left: 1px
     }
@@ -119,9 +106,6 @@
         line-height: 1;
         min-width: 155px;
         min-height: 155px;
-        /* display: flex; */
-        /* position: relative;
-        display: inline-block; */
     }
     /* ----------------------------*/
 
@@ -208,24 +192,66 @@
                 }
             </style>
 
-            <div class="item row">
+            <div class="item row" style="text-align: center;">
+                <h4>Unsupervisely evaluate sample qualities in browser</h4>
+                <br>
+                <br>
                 <div class="col-md-6 col-sm-12 col-xs-12">
-                    <h4>Unsupervisely evaluate sample qualities in browser</h4>
+
                     <p>This web demo is for supporting our recent research
                         <a href="https://openreview.net/forum?id=SJQHjzZ0-">paper</a> under review. It shows how to unsupervisely evaluate generated sample quality by constructing
                         a critic network based on certain divergence metrics (end to end, no external model needed, no data
                         labels needed).
                     </p>
-                    <p>Click "
-                        <b>Infer All</b>" to see samples from data distribution and model distribution.</p>
-                    <p>Click "
-                        <b>Evaluate</b>" on each card to evaluate sample qualities. </p>
-                    <p>Data distribution, as a baseline, has the best quality.</p>
+                    <ul class="nav nav-pills nav-justified">
+                        <li class="active">
+                            <a data-toggle="tab" href="#inferall">Infer All</a>
+                        </li>
+                        <li>
+                            <a data-toggle="tab" href="#evaluate">Evaluate</a>
+                        </li>
+                        <li>
+                            <a data-toggle="tab" href="#uploadsample">Upload Sample</a>
+                        </li>
+                        <li>
+                            <a data-toggle="tab" href="#uploadweights">Upload Weights</a>
+                        </li>
+                    </ul>
+                    <br>
+                    <br>
 
-                    <hr class="divider hidden-lg hidden-md hidden-sm" />
+                    <div class='tab-content'>
+                        <div id='inferall' class='tab-pane fade in active'>
+                            <p>Click "
+                                <b>Infer All</b>" to see samples from data distribution and model distribution.</p>
+                        </div>
+                        <div id='evaluate' class='tab-pane fade'>
+                            <p>Click "
+                                <b>Evaluate</b>" on each card to evaluate sample qualities.</p>
+                            <p>Data distribution, as a baseline, has the best quality.</p>
+                        </div>
+                        <div id='uploadsample' class='tab-pane fade'>
+                            <p>Click "
+                                <b>Upload Sample</b>" to upload sample data. To generate one, follow the python code
+                                <a href="https://github.com/PAIR-code/deeplearnjs/blob/master/demos/rune_recognition/generate_rune_data_for_model_builder.py">here</a>, reshape a batch of sample images of shape (batchSize, 28,28,1) to (batchSize,28*28,1)
+                                and save it to a gray scale png image of shape (batchSize, 28*28).</p>
+                        </div>
+                        <div id='uploadweights' class='tab-pane fade'>
+                            <p>Click "
+                                <b>Upload Weights</b>" to upload generator weights. You can download trained generator weights
+                                from the
+                                <a href="https://hma02.github.io/deeplearnjs-practice/deeplearn_gan.html">GAN demo</a>.</p>
+                        </div>
+                    </div>
+
+                    <hr class="divider hidden-lg hidden-md visible-sm" />
 
                 </div>
                 <div class="col-md-6 col-sm-12 col-xs-12">
+
+                    <div id="targetEvalAmount"></div>
+                    <br>
+                    <br>
                     <div class="form-group">
                         <label for="metric-dropdown">Metric</label>
                         <select class="form-control" id="metric-dropdown">
@@ -233,27 +259,20 @@
                             <option value="ls">Least Square Divergence</option>
                         </select>
                     </div>
-                    <div id="targetEvalAmount"></div>
-                    <br>
-                    <br>
-                    <input class="btn btn-default btn-md paper" data-toggle="tooltip" title="Start/Stop inferencing all samples" id="buttoninfer"
-                        type="submit" value="Infer All" />
-                    <br>
-                    <br>
                     <div class="item row">
-                        <div class="col-md-6 col-sm-12 col-xs-12">
-                            <label class="btn btn-default btn-file" data-toggle="tooltip" title="Upload generator weights to evaluate its samples, you can download weights from the GAN demo"
-                                id="weights-file1-label">
-                                <i class="fa fa-upload" aria-hidden="true"></i> Upload Weights
+                        <div class="col-md-4 col-sm-4 col-xs-4">
+                            <input class="btn btn-default btn-md" id="buttoninfer" type="submit" value="Infer All" />
+                        </div>
+                        <div class="col-md-4 col-sm-4 col-xs-4">
+                            <label class="btn btn-default btn-file" id="weights-file1-label">
+                                <i class="fa fa-upload" aria-hidden="true"></i> Weights
                                 <input class="upload" type="file" id="weights-file" name="weights-file1" style="display: none;" />
                             </label>
-                            <br>
                             <div id="loadedWeightsFileName"></div>
                         </div>
-                        <div class="col-md-6 col-sm-12 col-xs-12">
-                            <label class="btn btn-default btn-file" data-toggle="tooltip" title="Upload sample image (png) to be evaluated. You can follow the DeeplearnJS's tutorial <Example: Add a new data set to the model builder demo> to put your sample images in a single png."
-                                id="sample-file-label">
-                                <i class="fa fa-upload" aria-hidden="true"></i> Upload Sample
+                        <div class="col-md-4 col-sm-4 col-xs-4">
+                            <label class="btn btn-default btn-file" id="sample-file-label">
+                                <i class="fa fa-upload" aria-hidden="true"></i> Sample
                                 <input class="upload" type="file" id="sample-file" name="sample-file" style="display: none;" />
                             </label>
                             <br>
@@ -275,21 +294,27 @@
 
                         <h6 class="title" id="title0">Real Data</h6>
 
-                        <input class="btn btn-default btn-md paper" id="buttoneval0" type="submit" value="Evaluate" data-toggle="tooltip" title="evaluate real data distribution against itself as a baseline"
-                        />
-                        <br>
-                        <br>
+                        <div class="subtitle" id="in_subtitle0">Real Data Distribution:</div>
+                        <div class="image-container" id="image-container0"></div>
+                        <hr class="divider" />
 
-                        <div id="evalExamplesPerSec0">Eval Examples/sec: </div>
-                        <div id="examplesEvaluated0">Examples evaluated:</div>
+                        <div class="item row">
+                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                <div id="evalExamplesPerSec0">Eval Examples/sec: </div>
+                                <div id="examplesEvaluated0">Examples evaluated:</div>
+                            </div>
+                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                <input class="btn btn-default btn-md paper" id="buttoneval0" type="submit" value="Evaluate" data-toggle="tooltip" title="evaluate real data distribution against itself as a baseline"
+                                />
+                            </div>
+                        </div>
+
                         <div id="evalBarBackground0" style="width:100%; background-color: #ddd;">
                             <div id="evalBar0" style="width: 1%; height: 10px;  background-color: #4CAF50;"></div>
                         </div>
 
                         <hr class="divider" />
-                        <div class="subtitle" id="in_subtitle0">Real Data Distribution:</div>
-                        <div class="image-container" id="image-container0"></div>
-                        <hr class="divider" />
+
                         <div class="subtitle" id="out_subtitle0">Real Data Eval Result:</div>
 
                         <canvas id="losschart0" width="155" height="160">chart0</canvas>
@@ -302,21 +327,27 @@
 
                         <h6 class="title" id="title1">Generator of a GAN</h6>
 
-                        <input class="btn btn-default btn-md paper" id="buttoneval1" type="submit" value="Evaluate" data-toggle="tooltip" title="evaluate generated image distribution against data distribution"
-                        />
-                        <br>
-                        <br>
+                        <div class="subtitle" id="in_subtitle1">Generated Data Distribution:</div>
+                        <div class="image-container" id="image-container1"></div>
+                        <hr class="divider" />
 
-                        <div id="evalExamplesPerSec1">Eval Examples/sec: </div>
-                        <div id="examplesEvaluated1">Examples evaluated:</div>
+                        <div class="item row">
+                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                <div id="evalExamplesPerSec1">Eval Examples/sec: </div>
+                                <div id="examplesEvaluated1">Examples evaluated:</div>
+                            </div>
+                            <div class="col-md-6 col-sm-6 col-xs-12">
+                                <input class="btn btn-default btn-md paper" id="buttoneval1" type="submit" value="Evaluate" data-toggle="tooltip" title="evaluate generated image distribution against data distribution"
+                                />
+                            </div>
+                        </div>
+
                         <div id="evalBarBackground1" style="width:100%; background-color: #ddd;">
                             <div id="evalBar1" style="width: 1%; height: 10px;  background-color: #4CAF50;"></div>
                         </div>
 
                         <hr class="divider" />
-                        <div class="subtitle" id="in_subtitle1">Generated Data Distribution:</div>
-                        <div class="image-container" id="image-container1"></div>
-                        <hr class="divider" />
+
                         <div class="subtitle" id="out_subtitle1">Generated Data Eval Result:</div>
 
                         <canvas id="losschart1" width="155" height="160">chart1</canvas>
