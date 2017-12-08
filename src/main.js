@@ -181,6 +181,9 @@ function setupUploadWeightsButton(fileInput) {
 
         fileInput.value = '';
 
+        document.getElementById('loadedSampleImageFileName').innerText = '';
+        document.querySelector('#sampleImage').style.visibility = 'hidden';
+
     });
 }
 
@@ -190,6 +193,8 @@ function setupUploadSampleImageButton(fileInput) {
         // alert(e);
         document.getElementById('loadedSampleImageFileName').innerText = fileInput.files[0].name;
         fileInput.value = '';
+
+        document.getElementById('loadedWeightsFileName').innerText = '';
     }
 
     fileInput.addEventListener('change', function () {
@@ -224,20 +229,20 @@ function setupUploadSampleImageButton(fileInput) {
 
 // --------------------  display and control  -------------------------------
 
-function updateSelectedEnvironment(selectedEnvName, _graphRunner = null) {
-    math = (selectedEnvName === 'GPU') ? mathGPU : mathCPU;
-    if (_graphRunner != null) {
-        console.log('math =', math === mathGPU ? 'mathGPU' : 'mathCPU', 'with graphRunner', _graphRunner);
-        _graphRunner.setMath(math);
-    } else {
-        if (models.length > 0) {
-            models.forEach(m => m.graphRunner.setMath(math))
-            console.log('math =', math === mathGPU ? 'mathGPU' : 'mathCPU', 'with graphRunners in all models', );
-        } else {
-            console.log('math =', math === mathGPU ? 'mathGPU' : 'mathCPU');
-        }
-    }
-}
+// function updateSelectedEnvironment(selectedEnvName, _graphRunner = null) {
+//     math = (selectedEnvName === 'GPU') ? mathGPU : mathCPU;
+//     if (_graphRunner != null) {
+//         console.log('math =', math === mathGPU ? 'mathGPU' : 'mathCPU', 'with graphRunner', _graphRunner);
+//         _graphRunner.setMath(math);
+//     } else {
+//         if (models.length > 0) {
+//             models.forEach(m => m.graphRunner.setMath(math))
+//             console.log('math =', math === mathGPU ? 'mathGPU' : 'mathCPU', 'with graphRunners in all models', );
+//         } else {
+//             console.log('math =', math === mathGPU ? 'mathGPU' : 'mathCPU');
+//         }
+//     }
+// }
 
 var infer_request = null;
 var btn_infer = document.getElementById('buttoninfer');
@@ -280,16 +285,17 @@ function run() {
     // Default optimizer is momentum
     critSelectedOptimizerName = "adam";
 
-    var envDropdown = document.getElementById("environment-dropdown");
-    selectedEnvName = 'GPU';
-    var ind = indexOfDropdownOptions(envDropdown.options, selectedEnvName)
-    envDropdown.options[ind].selected = 'selected';
-    updateSelectedEnvironment(selectedEnvName); // change math
+    math = mathGPU;
+    // var envDropdown = document.getElementById("environment-dropdown");
+    // selectedEnvName = 'GPU';
+    // var ind = indexOfDropdownOptions(envDropdown.options, selectedEnvName)
+    // envDropdown.options[ind].selected = 'selected';
+    // updateSelectedEnvironment(selectedEnvName); // change math
 
-    envDropdown.addEventListener('change', (event) => {
-        selectedEnvName = event.target.value;
-        updateSelectedEnvironment(selectedEnvName); // change math
-    });
+    // envDropdown.addEventListener('change', (event) => {
+    //     selectedEnvName = event.target.value;
+    //     updateSelectedEnvironment(selectedEnvName); // change math
+    // });
 
 
     var metricDropdown = document.getElementById("metric-dropdown");
@@ -359,7 +365,7 @@ function monitor() {
         } else {
             btn_infer.className = 'btn btn-danger btn-md paper';
             btn_infer.disabled = true;
-            btn_infer.value = 'Model not valid'
+            btn_infer.value = 'Model not valid or being reinitialized'
         }
     }
 

@@ -62,9 +62,6 @@ class Net { // gen or disc or critic
 function buildImageContainer(inferenceContainer, model) {
 
     inferenceContainer.innerHTML = '';
-    inferenceContainer.style.lineHeight = "1";
-    inferenceContainer.style.minWidth = '155px';
-    inferenceContainer.style.minHeight = '155px';
 
     for (let i = 0; i < INFERENCE_EXAMPLE_COUNT; i++) {
 
@@ -158,9 +155,9 @@ class EvalSampleModel {
                 this.displayEvalExamplesPerSec(examplesPerSec),
         };
 
-        this.graphRunner = new MyGraphRunner(eventObserver);
+        this.graphRunner = new MyGraphRunner(math, eventObserver);
 
-        updateSelectedEnvironment(selectedEnvName, this.graphRunner);
+        // updateSelectedEnvironment(selectedEnvName, this.graphRunner);
 
         this.isValid = false;
         this.modelInitialized = false;

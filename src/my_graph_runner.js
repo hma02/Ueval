@@ -47,8 +47,8 @@ var MetricReduction = {
  */
 class MyGraphRunner {
 
-    constructor(eventObserver) {
-        // this.math = math;
+    constructor(math, eventObserver) {
+        this.math = math;
         // this.session = session;
         this.eventObserver = eventObserver;
 

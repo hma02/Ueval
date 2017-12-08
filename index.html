@@ -36,7 +36,6 @@
     <link rel="stylesheet" href="assets/plugins/bootstrap/css/bootstrap.min.css">
     <!-- Plugins CSS -->
     <link rel="stylesheet" href="assets/plugins/font-awesome/css/font-awesome.css">
-    <link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
     <!-- Theme CSS -->
     <link id="theme-style" rel="stylesheet" href="assets/css/styles.css">
 
@@ -48,8 +47,8 @@
 <style>
     .main-wrapper {
         background: #fff;
-        padding: 20px;
-        padding-right: 260px;
+        padding: 30px;
+        padding-right: 270px;
     }
 
     @media (max-width: 767px) {
@@ -67,36 +66,32 @@
     }
 
     .box {
-        width: 99%;
-        /* height: 200px; */
-        background: #FFF;
-        /* margin: 40px auto; */
+        /* width: 99%; */
+        background: rgb(255, 255, 255);
+        padding: 5%;
+        margin-top: 10px;
+        text-align: center;
     }
 
-    .effect6 {
+    .effect8 {
         /* position: relative; */
-        box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3), 0 0 40px rgba(0, 0, 0, 0.1) inset;
-    }
-
-    .effect6:before,
-    .effect6:after {
-        content: "";
-        position: absolute;
-        z-index: -1;
-        box-shadow: 0 0 20px rgba(0, 0, 0, 0.8);
-        top: 50%;
-        bottom: 0;
-        left: 10px;
-        right: 10px;
-        border-radius: 100px / 10px;
+        -webkit-box-shadow: 2px 2px 5px 1px #ccc;
+        /* Safari 3-4, iOS 4.0.2 - 4.2, Android 2.3+ */
+        -moz-box-shadow: 2px 2px 5px 1px #ccc;
+        /* Firefox 3.5 - 3.6 */
+        box-shadow: 2px 2px 5px 1px #ccc;
+        /* Opera 10.5, IE 9, Firefox 4+, Chrome 6+, iOS 5 */
     }
 
     .title {
         align-items: center;
         /* border-bottom: 1px solid rgba(0, 0, 0, 0.1); */
         color: black;
-        display: flex;
-        /* font-weight: 500; */
+        /* display: flex;
+        align-items: center;
+        justify-content: center; */
+        font-size: 18px;
+        font-weight: bold;
         /* height: 20px; */
         /* min-height: 20px; */
         /* padding-top: 10px; */
@@ -107,11 +102,10 @@
 
     .subtitle {
         font-size: 15px;
-        font-weight: bold;
-    }
-
-    .train-stats-message {
-        line-height: 1.67em;
+        margin-bottom: 5px;
+        /* display: flex;
+        align-items: center;
+        justify-content: center; */
     }
 
     .inference-example {
@@ -120,17 +114,19 @@
         margin-bottom: 0px;
         margin-left: 1px
     }
+
+    .image-container {
+        line-height: 1;
+        min-width: 155px;
+        min-height: 155px;
+        /* display: flex; */
+        /* position: relative;
+        display: inline-block; */
+    }
     /* ----------------------------*/
 
     .ndarray-image-visualizer {
         flex-basis: 100px;
-    }
-
-    .mycard {
-        padding: 30px;
-        margin-top: 10px;
-        /* margin-left: 20px; */
-        /* align-items: center; */
     }
 </style>
 
@@ -231,13 +227,6 @@
                 </div>
                 <div class="col-md-6 col-sm-12 col-xs-12">
                     <div class="form-group">
-                        <label for="environment-dropdown">Environment</label>
-                        <select class="form-control" id="environment-dropdown">
-                            <option value="CPU">CPU</option>
-                            <option value="GPU">GPU</option>
-                        </select>
-                    </div>
-                    <div class="form-group">
                         <label for="metric-dropdown">Metric</label>
                         <select class="form-control" id="metric-dropdown">
                             <option value="js">Jensen-Shannon Divergence</option>
@@ -282,7 +271,7 @@
 
             <div class="item row" id="eval">
                 <div class="col-md-6 col-sm-12 col-xs-12" id="eval0">
-                    <div class="w3-card mycard">
+                    <div class="box effect8">
 
                         <h6 class="title" id="title0">Real Data</h6>
 
@@ -291,15 +280,15 @@
                         <br>
                         <br>
 
-                        <div class="train-stats-message" id="evalExamplesPerSec0">Eval Examples/sec: </div>
-                        <div class="train-stats-message" id="examplesEvaluated0">Examples evaluated:</div>
+                        <div id="evalExamplesPerSec0">Eval Examples/sec: </div>
+                        <div id="examplesEvaluated0">Examples evaluated:</div>
                         <div id="evalBarBackground0" style="width:100%; background-color: #ddd;">
                             <div id="evalBar0" style="width: 1%; height: 10px;  background-color: #4CAF50;"></div>
                         </div>
 
                         <hr class="divider" />
                         <div class="subtitle" id="in_subtitle0">Real Data Distribution:</div>
-                        <div id="image-container0"></div>
+                        <div class="image-container" id="image-container0"></div>
                         <hr class="divider" />
                         <div class="subtitle" id="out_subtitle0">Real Data Eval Result:</div>
 
@@ -309,7 +298,7 @@
                 </div>
 
                 <div class="col-md-6 col-sm-12 col-xs-12" id="eval1">
-                    <div class="w3-card mycard">
+                    <div class="box effect8">
 
                         <h6 class="title" id="title1">Generator of a GAN</h6>
 
@@ -318,15 +307,15 @@
                         <br>
                         <br>
 
-                        <div class="train-stats-message" id="evalExamplesPerSec1">Eval Examples/sec: </div>
-                        <div class="train-stats-message" id="examplesEvaluated1">Examples evaluated:</div>
+                        <div id="evalExamplesPerSec1">Eval Examples/sec: </div>
+                        <div id="examplesEvaluated1">Examples evaluated:</div>
                         <div id="evalBarBackground1" style="width:100%; background-color: #ddd;">
                             <div id="evalBar1" style="width: 1%; height: 10px;  background-color: #4CAF50;"></div>
                         </div>
 
                         <hr class="divider" />
                         <div class="subtitle" id="in_subtitle1">Generated Data Distribution:</div>
-                        <div id="image-container1"></div>
+                        <div class="image-container" id="image-container1"></div>
                         <hr class="divider" />
                         <div class="subtitle" id="out_subtitle1">Generated Data Eval Result:</div>
 
@@ -421,9 +410,6 @@
     <script src="src/model_layer.js"></script>
     <script src="src/eval_sample_model.js"></script>
     <script src="src/my_graph_runner.js"></script>
-    <script src="https://cs.stanford.edu/people/karpathy/convnetjs/build/vis.js"></script>
-    <script src="https://cs.stanford.edu/people/karpathy/convnetjs/build/util.js"></script>
-
 
     <script type="text/javascript" src="src/main.js"></script>
 
