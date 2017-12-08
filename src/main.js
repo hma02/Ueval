@@ -127,7 +127,7 @@ function fetchConfig_DownloadData(fetchConfigCallback) {
             dataSet = dataSets[selectedDatasetName];
             xhrDatasetConfigs = _xhrDatasetConfigs;
 
-            fetchConfigCallback(xhrDatasetConfigs, selectedDatasetName);
+            fetchConfigCallback();
 
             datasetDownloaded = false;
 
@@ -146,20 +146,70 @@ function fetchConfig_DownloadData(fetchConfigCallback) {
 
 var models = [];
 
-function buildModels(xhrDatasetConfigs, selectedDatasetName) {
+function buildModels() {
     const configs = xhrDatasetConfigs[selectedDatasetName];
 
-    var evalModelRealImage = new EvalSampleModel(configs, models.length, false, false);
+    var evalModelRealImage = new EvalSampleModel(configs, 0, false, false);
     evalModelRealImage.initialize();
     models.push(evalModelRealImage);
 
-    var evalModelGenerator = new EvalSampleModel(configs, models.length, true, false);
+    var evalModelGenerator = new EvalSampleModel(configs, 1, true, false);
     evalModelGenerator.initialize();
     models.push(evalModelGenerator);
 
-    var evalModelSampleImage = new EvalSampleModel(configs, models.length, false, true);
-    evalModelSampleImage.initialize();
-    models.push(evalModelSampleImage);
+}
+
+
+function setupUploadWeightsButton(fileInput) {
+
+    fileInput.addEventListener('change', function () {
+
+        const genWeightsPath = URL.createObjectURL(fileInput.files[0]);
+
+        const configs = xhrDatasetConfigs[selectedDatasetName];
+
+        models[1] = null;
+        models[1] = new EvalSampleModel(configs, 1, true, false);
+        models[1].initialize(genWeightsPath);
+
+        // Clear out the value of the file chooser. This ensures that if the user
+        // selects the same file, we'll re-read it.
+        fileInput.value = '';
+
+    });
+}
+
+function setupUploadSampleImageButton(fileInput) {
+
+    // function imageIsLoaded(e) {
+    //     alert(e);
+    // }
+
+    fileInput.addEventListener('change', function () {
+
+        const configs = xhrDatasetConfigs[selectedDatasetName];
+
+        models[1] = null;
+        models[1] = new EvalSampleModel(configs, 1, false, true);
+        models[1].initialize();
+
+        if (this.files && this.files[0]) {
+            path = URL.createObjectURL(this.files[0]);
+
+            sampleXhrDatasetConfig = Object.assign({}, models[1].configs);
+            sampleXhrDatasetConfig.data[0].path = path;
+            models[1].sampleImageDataSet = new XhrDataset(sampleXhrDatasetConfig);
+            models[1].sampleImageDataSet.fetchData().then(() => {
+                models[1].sampleImageDataSet.normalizeWithinBounds(IMAGE_DATA_INDEX, -1, 1);
+                models[1].sampleImageDataLoaded = true;
+
+                var img = document.querySelector('#sampleImage'); // $('img')[0]
+                img.style.visibility = 'visible';
+                img.src = path; // set src to file url
+                img.onload = null; //imageIsLoaded // optional onload event listener
+            });
+        }
+    });
 
 }
 
@@ -242,13 +292,20 @@ function run() {
         METRIC_NAME = event.target.value;
         models = [];
         if (xhrDatasetConfigs != null && selectedDatasetName != null) {
-            buildModels(xhrDatasetConfigs, selectedDatasetName)
+            buildModels();
         }
     });
 
 
     // Set up datasets.
     fetchConfig_DownloadData(buildModels);
+
+
+    const fileInput = document.querySelector('#weights-file');
+    setupUploadWeightsButton(fileInput);
+
+    const sampleFileInput = document.querySelector('#sample-file');
+    setupUploadSampleImageButton(sampleFileInput);
 
 }
 

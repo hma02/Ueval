@@ -59,60 +59,6 @@ class Net { // gen or disc or critic
     }
 }
 
-
-function setupUploadWeightsButton(fileInput, model) {
-    // Show and setup the load view button.
-    // const fileInput = document.querySelector('#weights-file');
-    fileInput.addEventListener('change', event => {
-        const file = fileInput.files[0];
-        // Clear out the value of the file chooser. This ensures that if the user
-        // selects the same file, we'll re-read it.
-        fileInput.value = '';
-        const fileReader = new FileReader();
-        fileReader.onload = (evt) => {
-
-            const weightsJson = fileReader.result;
-
-            weights = JSON.parse(weightsJson);
-
-            if (model.isValid) {
-                model.createModel(weights);
-            } else {
-                console.log('model not valid');
-            }
-
-        };
-        fileReader.readAsText(file);
-    });
-}
-
-function setupUploadSampleImageButton(fileInput, model) {
-
-    // function imageIsLoaded(e) {
-    //     alert(e);
-    // }
-
-    fileInput.addEventListener('change', function () {
-        if (this.files && this.files[0]) {
-            path = URL.createObjectURL(this.files[0]);
-
-            sampleXhrDatasetConfig = Object.assign({}, model.configs);
-            sampleXhrDatasetConfig.data[0].path = path;
-            model.sampleImageDataSet = new XhrDataset(sampleXhrDatasetConfig);
-            model.sampleImageDataSet.fetchData().then(() => {
-                model.sampleImageDataSet.normalizeWithinBounds(IMAGE_DATA_INDEX, -1, 1);
-                model.sampleImageDataLoaded = true;
-
-                var img = document.querySelector('#sampleImage' + `${model.id}`); // $('img')[0]
-                img.style.visibility = 'visible';
-                img.src = path; // set src to file url
-                img.onload = null; //imageIsLoaded // optional onload event listener
-            });
-        }
-    });
-
-}
-
 function buildImageContainer(inferenceContainer, model) {
 
     inferenceContainer.innerHTML = '';
@@ -221,7 +167,7 @@ class EvalSampleModel {
 
     }
 
-    initialize() {
+    initialize(genWeightsPath = null) {
 
         this.evalBaseElt = document.getElementById(`eval${this.id}`);
 
@@ -230,20 +176,21 @@ class EvalSampleModel {
             this.loadNetFromPath(this.generatorNet.path, this.generatorNet);
 
             this.genWeightsloaded = false;
-            var genWeightsPath = 'src/mnist/4600s_gen_weights.json';
-            this.loadGenWeightsFromPath(genWeightsPath);
-
-            const fileInput = document.querySelector('#weights-file' + `${this.id}`);
-            setupUploadWeightsButton(fileInput, this);
-        } else {
-            let label = document.getElementById("sample-file-label" + `${this.id}`);
-            if (this.sampleImage) {
-                label.style.visibility = 'visible';
-                const sampleFileInput = document.querySelector('#sample-file' + `${this.id}`);
-                setupUploadSampleImageButton(sampleFileInput, this);
+            let path;
+            if (genWeightsPath == null) {
+                path = 'src/mnist/4600s_gen_weights.json';
             } else {
-                label.style.visibility = 'hidden';
+                path = genWeightsPath;
             }
+            this.loadGenWeightsFromPath(path);
+
+            document.getElementById('title' + `${this.id}`).innerText = 'Generator of a GAN';
+            document.getElementById('in_subtitle' + `${this.id}`).innerText = 'Generated Data Distribution:';
+            document.getElementById('out_subtitle' + `${this.id}`).innerText = 'Generated Data Eval Result:';
+        } else if (this.sampleImage) {
+            document.getElementById('title' + `${this.id}`).innerText = 'Uploaded Sample';
+            document.getElementById('in_subtitle' + `${this.id}`).innerText = 'Sample Data Distribution:';
+            document.getElementById('out_subtitle' + `${this.id}`).innerText = 'Sample Data Eval Result:';
         }
 
         // image visualizers
