@@ -154,7 +154,9 @@ function buildModels() {
     models.push(evalModelRealImage);
 
     var evalModelGenerator = new EvalSampleModel(configs, 1, true, false);
-    evalModelGenerator.initialize();
+    let genWeightsPath = 'src/mnist/700s_gen_weights.json';
+    evalModelGenerator.initialize(genWeightsPath);
+    document.getElementById('loadedWeightsFileName').innerText = '700s_gen_weights.json';
     models.push(evalModelGenerator);
 
 }
@@ -174,6 +176,9 @@ function setupUploadWeightsButton(fileInput) {
 
         // Clear out the value of the file chooser. This ensures that if the user
         // selects the same file, we'll re-read it.
+
+        document.getElementById('loadedWeightsFileName').innerText = fileInput.files[0].name;
+
         fileInput.value = '';
 
     });
@@ -181,9 +186,11 @@ function setupUploadWeightsButton(fileInput) {
 
 function setupUploadSampleImageButton(fileInput) {
 
-    // function imageIsLoaded(e) {
-    //     alert(e);
-    // }
+    function imageIsLoaded(e) {
+        // alert(e);
+        document.getElementById('loadedSampleImageFileName').innerText = fileInput.files[0].name;
+        fileInput.value = '';
+    }
 
     fileInput.addEventListener('change', function () {
 
@@ -206,9 +213,11 @@ function setupUploadSampleImageButton(fileInput) {
                 var img = document.querySelector('#sampleImage'); // $('img')[0]
                 img.style.visibility = 'visible';
                 img.src = path; // set src to file url
-                img.onload = null; //imageIsLoaded // optional onload event listener
+                img.onload = imageIsLoaded; // optional onload event listener
             });
         }
+
+
     });
 
 }

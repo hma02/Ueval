@@ -176,13 +176,10 @@ class EvalSampleModel {
             this.loadNetFromPath(this.generatorNet.path, this.generatorNet);
 
             this.genWeightsloaded = false;
-            let path;
-            if (genWeightsPath == null) {
-                path = 'src/mnist/4600s_gen_weights.json';
-            } else {
-                path = genWeightsPath;
+
+            if (genWeightsPath != null) {
+                this.loadGenWeightsFromPath(genWeightsPath);
             }
-            this.loadGenWeightsFromPath(path);
 
             document.getElementById('title' + `${this.id}`).innerText = 'Generator of a GAN';
             document.getElementById('in_subtitle' + `${this.id}`).innerText = 'Generated Data Distribution:';

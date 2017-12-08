@@ -251,19 +251,27 @@
                         type="submit" value="Infer All" />
                     <br>
                     <br>
-                    <span>
-                        <label class="btn btn-default btn-file" data-toggle="tooltip" title="Upload generator weights to evaluate its samples, you can download weights from the GAN demo"
-                            id="weights-file1-label">
-                            <i class="fa fa-upload" aria-hidden="true"></i> Upload Weights
-                            <input class="upload" type="file" id="weights-file" name="weights-file1" style="display: none;" />
-                        </label>
-                        <label class="btn btn-default btn-file" data-toggle="tooltip" title="Upload sample image (png) to be evaluated. You can follow the DeeplearnJS's tutorial <Example: Add a new data set to the model builder demo> to put your sample images in a single png."
-                            id="sample-file-label">
-                            <i class="fa fa-upload" aria-hidden="true"></i> Upload Sample
-                            <input class="upload" type="file" id="sample-file" name="sample-file" style="display: none;" />
-                        </label>
-                        <img id="sampleImage" src="#" alt="" height=30 width=30 style="visibility:hidden;">
-                    </span>
+                    <div class="item row">
+                        <div class="col-md-6 col-sm-12 col-xs-12">
+                            <label class="btn btn-default btn-file" data-toggle="tooltip" title="Upload generator weights to evaluate its samples, you can download weights from the GAN demo"
+                                id="weights-file1-label">
+                                <i class="fa fa-upload" aria-hidden="true"></i> Upload Weights
+                                <input class="upload" type="file" id="weights-file" name="weights-file1" style="display: none;" />
+                            </label>
+                            <br>
+                            <div id="loadedWeightsFileName"></div>
+                        </div>
+                        <div class="col-md-6 col-sm-12 col-xs-12">
+                            <label class="btn btn-default btn-file" data-toggle="tooltip" title="Upload sample image (png) to be evaluated. You can follow the DeeplearnJS's tutorial <Example: Add a new data set to the model builder demo> to put your sample images in a single png."
+                                id="sample-file-label">
+                                <i class="fa fa-upload" aria-hidden="true"></i> Upload Sample
+                                <input class="upload" type="file" id="sample-file" name="sample-file" style="display: none;" />
+                            </label>
+                            <br>
+                            <div id="loadedSampleImageFileName"></div>
+                            <img id="sampleImage" src="#" alt="" height=30 width=30 style="visibility:hidden;">
+                        </div>
+                    </div>
                 </div>
             </div>
 
