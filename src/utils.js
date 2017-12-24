@@ -104,23 +104,36 @@ window.chartColors = {
     green: 'rgb(75, 192, 192)',
     blue: 'rgb(54, 162, 235)',
     purple: 'rgb(153, 102, 255)',
-    grey: 'rgb(201, 203, 207)'
+    grey: 'rgb(227, 227, 227)',
+    greenblue: 'rgba(75,192,192,1)'
 };
+
+var chartDataSets = [{
+    label: "movingAvg",
+    backgroundColor: window.chartColors.greenblue,
+    borderColor: window.chartColors.greenblue,
+    data: [],
+    fill: false,
+    pointRadius: 0,
+    // pointHitRadius: 5,
+    borderWidth: 2,
+    // lineTension: 0,
+}, {
+    label: 'raw',
+    backgroundColor: window.chartColors.grey,
+    borderColor: window.chartColors.grey,
+    data: [],
+    fill: false,
+    pointRadius: 0,
+    // pointHitRadius: 5,
+    borderWidth: 1,
+    // lineTension: 0,
+}]
 
 var config = {
     type: 'line',
     data: {
-        datasets: [{
-            data: [],
-            fill: false,
-            label: ' ',
-            pointRadius: 0,
-            borderColor: 'rgba(75,192,192,1)',
-            backgroundColor: 'rgba(75,192,192,1)',
-            borderWidth: 1,
-            // lineTension: 0,
-            // pointHitRadius: 8
-        }]
+        datasets: chartDataSets
     },
     options: {
         animation: {
@@ -146,14 +159,14 @@ var config = {
 };
 
 
-function createChart(canvasElt, label, data, min = 0, max = null) {
 
-    // const canvas = document.getElementById(canvasId);
+
+
+function createChart(canvasElt, label) {
 
     const context = canvasElt.getContext('2d');
 
-    config.data.datasets[0].data = data;
-    config.data.datasets[0].label = label;
+    config.data.datasets[1].label = label;
 
     return new Chart(context, config);
 

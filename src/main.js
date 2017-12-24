@@ -67,6 +67,7 @@ const INFERENCE_IMAGE_SIZE_PX = 50;
 const INFERENCE_EXAMPLE_INTERVAL_MS = 3000;
 
 const TARGET_EVALUATION_EXAMPLE_AMOUNT = 40000;
+const AVG_WINDOW_SIZE = 50;
 
 // Smoothing factor for the examples/s standalone text statistic.
 const EXAMPLE_SEC_STAT_SMOOTHING_FACTOR = .7;
@@ -264,8 +265,8 @@ btn_infer.addEventListener('click', () => {
 
 var ulBtns = document.querySelectorAll(".upload");
 
-var targetEvalAmountElt = document.querySelector("#targetEvalAmount");
-targetEvalAmountElt.innerHTML = `Target Eval Amount: ${TARGET_EVALUATION_EXAMPLE_AMOUNT}`;
+var evalHyperParamElt = document.querySelector("#targetEvalAmount");
+evalHyperParamElt.innerHTML = `Target Eval Amount: ${TARGET_EVALUATION_EXAMPLE_AMOUNT}` + '<br />' + `Avg Window Size: ${AVG_WINDOW_SIZE}`;
 
 
 // ----------------------- application initialization and monitor ----------------------

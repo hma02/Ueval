@@ -114,6 +114,34 @@ function loadNetFromJson(modelJson, which) {
     }
 }
 
+class AvgWindow {
+    // from ConvNetJS' cnnutil.Window. See https://github.com/karpathy/convnetjs/blob/master/build/util.js
+    constructor(size = 100, minsize = 20) {
+        this.v = [];
+        this.size = size;
+        this.minsize = minsize;
+        this.sum = 0;
+    }
+    add(x) {
+        this.v.push(x);
+        this.sum += x;
+        if (this.v.length > this.size) {
+            var xold = this.v.shift();
+            this.sum -= xold;
+        }
+    }
+    get_average() {
+        if (this.v.length >= 1)
+            return this.sum / this.v.length;
+        else
+            return -1;
+    }
+    reset(x) {
+        this.v = [];
+        this.sum = 0;
+    }
+}
+
 class EvalSampleModel {
 
     constructor(configs, id, needGen = true, sampleImage = false) {
@@ -197,8 +225,11 @@ class EvalSampleModel {
         this.chartElt = document.getElementById('losschart' + `${this.id}`);
         this.chartElt.style.minWidth = '155px';
 
-        this.critLossChart = createChart(this.chartElt, this.metricName, this.chartData, 0, this.chartData.y);
+        this.critLossChart = createChart(this.chartElt, this.metricName);
         this.critLossChart.update();
+
+        this.chartAvgWindowData = [];
+        this.avgWindow = new AvgWindow(AVG_WINDOW_SIZE);
 
         // batchesEvaluated
         this.batchesEvaluatedElt = document.getElementById("examplesEvaluated" + `${this.id}`);
@@ -299,13 +330,23 @@ class EvalSampleModel {
 
         var cost = avgCost.get();
 
-        this.finalScoreElt.innerHTML = `${this.metricName} Eval Score: ${cost.toPrecision(5)}`;
+        this.avgWindow.add(cost);
+        var xa = this.avgWindow.get_average();
+
+        this.finalScoreElt.innerHTML = `${this.metricName} Eval Score: ${xa.toPrecision(5)}`;
 
         this.chartData.push({
             x: batchesEvaluated,
             y: cost
         });
-        config.data.datasets[0].data = this.chartData;
+        config.data.datasets[1].data = this.chartData;
+
+        this.chartAvgWindowData.push({
+            x: batchesEvaluated,
+            y: xa
+        })
+        config.data.datasets[0].data = this.chartAvgWindowData;
+
         this.critLossChart.update();
 
     }
