@@ -209,14 +209,19 @@
                 <br>
                 <div class="col-md-6 col-sm-12 col-xs-12">
 
-                    <p>This web demo is for supporting our recent research
-                        <a href="https://openreview.net/forum?id=SJQHjzZ0-">paper</a> under review. It shows how to unsupervisely evaluate generated sample quality by constructing
-                        a critic network based on certain divergence metrics (end to end, no external model needed, no data
-                        labels needed).
+                    <p>This is the demo of evaluation metric from “
+                        <a href="https://openreview.net/forum?id=SJQHjzZ0-">Quantitatively Evaludating GANs with Divergences proposed for Training</a>”. This paper shows how
+                        to measure the similarity between the data distribution and model distribution by constructing a
+                        critic network based on certain divergence or distance metrics used in training GANs, e.g., least
+                        square divergence, Jenson-Shannon divergence, wasserstein distance, etc. Therefore the evluation
+                        process does not need external model and data labels.
+                    </p>
+                    <p>
+                        <b>Instructions:</b>
                     </p>
                     <ul class="nav nav-pills nav-justified">
                         <li class="active">
-                            <a data-toggle="tab" href="#inferall">Infer All</a>
+                            <a data-toggle="tab" href="#inferall">Show Image</a>
                         </li>
                         <li>
                             <a data-toggle="tab" href="#evaluate">Evaluate</a>
@@ -234,12 +239,12 @@
                     <div class='tab-content'>
                         <div id='inferall' class='tab-pane fade in active'>
                             <p>Click "
-                                <b>Infer All</b>" to see samples from data distribution and model distribution.</p>
+                                <b>Show Image</b>" to inference samples from data distribution and model distribution.</p>
                         </div>
                         <div id='evaluate' class='tab-pane fade'>
                             <p>Click "
                                 <b>Evaluate</b>" on each card to evaluate sample qualities.</p>
-                            <p>Data distribution, as a baseline, has the best quality.</p>
+                            <p>Real data distribution, as a baseline, has the best quality.</p>
                         </div>
                         <div id='uploadsample' class='tab-pane fade'>
                             <p>Click "
@@ -272,7 +277,7 @@
                     </div>
                     <div class="item row">
                         <div class="col-md-4 col-sm-4 col-xs-4">
-                            <input class="btn btn-default btn-md" id="buttoninfer" type="submit" value="Infer All" />
+                            <input class="btn btn-default btn-md" id="buttoninfer" type="submit" value="Show Image" />
                         </div>
                         <div class="col-md-4 col-sm-4 col-xs-4">
                             <label class="btn btn-default btn-file" id="weights-file1-label">

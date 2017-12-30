@@ -259,7 +259,7 @@ btn_infer.addEventListener('click', () => {
         infer_request = true;
     }
 
-    ga('send', 'event', 'Ueval', 'click', 'Infer All', 40);
+    ga('send', 'event', 'Ueval', 'click', 'Show Image', 40);
 
 });
 
@@ -345,7 +345,7 @@ function monitor() {
                 ulBtns.forEach(elt => elt.disabled = false);
 
                 if (infer_paused) {
-                    btn_infer.value = 'Infer All'
+                    btn_infer.value = 'Show Image'
                 } else {
                     btn_infer.value = 'Stop Infering'
                 }
