@@ -105,7 +105,8 @@ window.chartColors = {
     blue: 'rgb(54, 162, 235)',
     purple: 'rgb(153, 102, 255)',
     grey: 'rgb(227, 227, 227)',
-    greenblue: 'rgba(75,192,192,1)'
+    greenblue: 'rgba(75,192,192,1)',
+    transparent: 'rgba(255,255,255,1)'
 };
 
 var chartDataSets = [{
@@ -117,6 +118,16 @@ var chartDataSets = [{
     pointRadius: 0,
     // pointHitRadius: 5,
     borderWidth: 2,
+    // lineTension: 0,
+}, {
+    label: 'worst',
+    backgroundColor: window.chartColors.transparent,
+    borderColor: window.chartColors.red,
+    borderWidth: 3,
+    data: [],
+    fill: false,
+    pointRadius: 5,
+    pointHitRadius: 5
     // lineTension: 0,
 }, {
     label: 'raw',
@@ -166,7 +177,7 @@ function createChart(canvasElt, label) {
 
     const context = canvasElt.getContext('2d');
 
-    config.data.datasets[1].label = label;
+    config.data.datasets[2].label = label;
 
     return new Chart(context, config);
 

@@ -142,6 +142,31 @@ class AvgWindow {
     }
 }
 
+function getBestPoint(pointArray, direction) {
+
+    var best = pointArray[0].y
+    var pos = pointArray[0].x
+    for (var i = 0; i < pointArray.length; i++) {
+        if (direction == 'min') {
+            if (pointArray[i].y < best) {
+                best = pointArray[i].y
+                pos = pointArray[i].x
+            }
+        } else {
+            if (pointArray[i].y > best) {
+                best = pointArray[i].y
+                pos = pointArray[i].x
+            }
+        }
+    }
+    return [{
+        x: pos,
+        y: best
+    }]
+
+
+}
+
 class EvalSampleModel {
 
     constructor(configs, id, needGen = true, sampleImage = false) {
@@ -333,13 +358,23 @@ class EvalSampleModel {
         this.avgWindow.add(cost);
         var xa = this.avgWindow.get_average();
 
-        this.finalScoreElt.innerHTML = `${this.metricName} Eval Score: ${xa.toPrecision(5)}`;
-
         this.chartData.push({
             x: batchesEvaluated,
             y: cost
         });
-        config.data.datasets[1].data = this.chartData;
+        config.data.datasets[2].data = this.chartData;
+
+        var direction;
+        if (this.metricName == 'js' || this.metricName == 'ls') {
+            direction = 'min'
+        } else if (this.metricName == 'iw') {
+            direction = 'max'
+        } else {
+            throw new Error('unknown metric')
+        }
+
+        config.data.datasets[1].data = getBestPoint(this.chartData, direction)
+        this.finalScoreElt.innerHTML = `${this.metricName} Eval Score: ${config.data.datasets[1].data[0].y.toPrecision(5)}`;
 
         this.chartAvgWindowData.push({
             x: batchesEvaluated,
