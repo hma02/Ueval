@@ -53,9 +53,9 @@ const INITIALIZATION_RANDOM_SEED = 1234;
 const DATASETS_CONFIG_JSON = 'src/model-builder-datasets-config.json';
 
 /** How often to evaluate the model against test data. */
-const EVAL_INTERVAL_MS = 1500;
+const EVAL_INTERVAL_MS = 60000;
 /** How often to compute the cost. Downloading the cost stalls the GPU. */
-const COST_INTERVAL_MS = 500;
+const COST_INTERVAL_MS = 10000;
 /** How many inference examples to show when evaluating accuracy. */
 const INFERENCE_EXAMPLE_COUNT = 9; // must be a square number
 const INFERENCE_EXAMPLE_ROWS = Math.sqrt(INFERENCE_EXAMPLE_COUNT);
@@ -66,8 +66,10 @@ const INFERENCE_IMAGE_SIZE_PX = 50;
  */
 const INFERENCE_EXAMPLE_INTERVAL_MS = 3000;
 
-const TARGET_EVALUATION_EXAMPLE_AMOUNT = 40000;
+const TARGET_EVALUATION_EXAMPLE_AMOUNT = 80000;
 const AVG_WINDOW_SIZE = 50;
+// const CRITIC_TRAIN_TEST_RATIO = 5 / 6;
+const TEST_EXAMPLE_COUNT = 5000;
 
 // Smoothing factor for the examples/s standalone text statistic.
 const EXAMPLE_SEC_STAT_SMOOTHING_FACTOR = .7;
@@ -266,7 +268,7 @@ btn_infer.addEventListener('click', () => {
 var ulBtns = document.querySelectorAll(".upload");
 
 var evalHyperParamElt = document.querySelector("#targetEvalAmount");
-evalHyperParamElt.innerHTML = `Target Eval Amount: ${TARGET_EVALUATION_EXAMPLE_AMOUNT}` + '<br />' + `Avg Window Size: ${AVG_WINDOW_SIZE}`;
+evalHyperParamElt.innerHTML = `Target Eval Amount: ${TARGET_EVALUATION_EXAMPLE_AMOUNT}` + '<br />' + `Avg Window Size: ${AVG_WINDOW_SIZE}` + '<br />' + `Critic test dataset size: ${TEST_EXAMPLE_COUNT}`;
 
 
 // ----------------------- application initialization and monitor ----------------------

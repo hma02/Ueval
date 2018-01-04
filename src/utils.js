@@ -110,7 +110,7 @@ window.chartColors = {
 };
 
 var chartDataSets = [{
-    label: "movingAvg",
+    label: "Test",
     backgroundColor: window.chartColors.greenblue,
     borderColor: window.chartColors.greenblue,
     data: [],
@@ -118,9 +118,9 @@ var chartDataSets = [{
     pointRadius: 0,
     // pointHitRadius: 5,
     borderWidth: 2,
-    // lineTension: 0,
+    lineTension: 0,
 }, {
-    label: 'worst',
+    label: 'WorstPt',
     backgroundColor: window.chartColors.transparent,
     borderColor: window.chartColors.red,
     borderWidth: 3,
@@ -130,7 +130,7 @@ var chartDataSets = [{
     pointHitRadius: 5
     // lineTension: 0,
 }, {
-    label: 'raw',
+    label: 'Train',
     backgroundColor: window.chartColors.grey,
     borderColor: window.chartColors.grey,
     data: [],
@@ -153,16 +153,26 @@ var config = {
         responsive: true,
         scales: {
             xAxes: [{
+                display: true,
                 type: 'linear',
-                position: 'bottom'
+                position: 'bottom',
+                scalelabel: {
+                    display: true,
+                    labelString: 'iterations'
+                }
             }],
             yAxes: [{
+                display: true,
                 ticks: {
                     min: null,
                     callback: (label, index, labels) => {
                         let num = Number(label).toFixed(2);
                         return `${num}`;
                     }
+                },
+                scalelabel: {
+                    display: true,
+                    labelString: 'cost'
                 }
             }]
         }
@@ -177,7 +187,8 @@ function createChart(canvasElt, label) {
 
     const context = canvasElt.getContext('2d');
 
-    config.data.datasets[2].label = label;
+    // config.data.datasets[2].label = label + `-` + config.data.datasets[2].label;
+    // config.data.datasets[0].label = label + `-` + config.data.datasets[0].label;
 
     return new Chart(context, config);
 

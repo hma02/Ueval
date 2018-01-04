@@ -31,7 +31,8 @@ var GraphRunnerEventObserver = dl.GraphRunnerEventObserver;
 
 
 const DEFAULT_EVAL_INTERVAL_MS = 1500;
-const DEFAULT_COST_INTERVAL_MS = 500;
+const DEFAULT_COST_INTERVAL_MS = 15000;
+const DEFAULT_TEST_COST_INTERVAL_MS = 40000;
 const DEFAULT_INFERENCE_EXAMPLE_INTERVAL_MS = 3000;
 
 
@@ -69,6 +70,8 @@ class MyGraphRunner {
         this.inferenceExampleIntervalMs = null;
         this.inferenceExampleCount = null;
 
+        this.testExampleCount = 0;
+
         // Runtime information=null.
         this.isTraining = null;
         this.totalBatchesTrained = null;
@@ -81,13 +84,15 @@ class MyGraphRunner {
         this.inferencePassesThisRun = null;
 
         this.isEvaluating = null;
-        this.totalBatchesEvaluated = null;
+        this.totalBatchesEvaluated = 0;
+        // this.totalTestImagesEvaluated = 0;
         this.batchesEvaluatedThisRun = null;
 
         this.trainStartTimestamp = null;
         this.evalStartTimestamp = null;
         this.lastCostTimestamp = 0;
         this.lastEvalTimestamp = 0;
+        this.lastTestCostTimestamp = 0;
 
         this.lastStopTimestamp = null;
         this.totalIdleTimeMs = 0;
@@ -102,23 +107,26 @@ class MyGraphRunner {
     resetStatistics() {
         this.totalBatchesTrained = 0;
         this.totalBatchesEvaluated = 0;
+        // this.totalTestImagesEvaluated = 0;
         this.totalIdleTimeMs = 0;
         this.lastStopTimestamp = null;
     }
 
-    evaluate(critCostTensor, genCostTensor, critTrainFeedEntries,
-        genTrainFeedEntries, batchSize, critOptimizer,
+    evaluate(critCostTensor, testExampleCount, critTrainFeedEntries,
+        critTestFeedEntries, batchSize, critOptimizer,
         genOptimizer, numBatches = null,
-        costIntervalMs = DEFAULT_COST_INTERVAL_MS) {
+        costIntervalMs = DEFAULT_COST_INTERVAL_MS, testCostIntervalMs = DEFAULT_TEST_COST_INTERVAL_MS) {
         this.critCostTensor = critCostTensor;
         // this.genCostTensor = genCostTensor;
         this.critTrainFeedEntries = critTrainFeedEntries;
-        // this.genTrainFeedEntries = genTrainFeedEntries;
+        this.critTestFeedEntries = critTestFeedEntries;
         this.batchSize = batchSize;
+        this.testExampleCount = testExampleCount;
         this.critOptimizer = critOptimizer;
         // this.genOptimizer = genOptimizer;
 
         this.costIntervalMs = costIntervalMs;
+        this.testCostIntervalMs = testCostIntervalMs;
         this.currentTrainLoopNumBatches = numBatches;
 
         this.batchesEvaluatedThisRun = 0;
@@ -159,6 +167,12 @@ class MyGraphRunner {
             this.lastCostTimestamp = start;
         }
 
+        const shouldComputeTestCost = (this.eventObserver.critCostCallback != null) &&
+            (start - this.lastTestCostTimestamp > this.testCostIntervalMs);
+        if (shouldComputeTestCost) {
+            this.lastTestCostTimestamp = start;
+        }
+
         const costReduction =
             shouldComputeCost ? CostReduction.MEAN : CostReduction.NONE;
 
@@ -174,13 +188,43 @@ class MyGraphRunner {
             if (shouldComputeCost) {
                 const evalTime = performance.now() - start;
 
-                this.eventObserver.critCostCallback(critCost);
+                this.eventObserver.critCostCallback(critCost, -1);
                 // this.eventObserver.genCostCallback(genCost);
 
                 if (this.eventObserver.evalExamplesPerSecCallback != null) {
                     const evalExamplesPerSec = (this.batchSize * 1000 / evalTime);
                     this.eventObserver.evalExamplesPerSecCallback(evalExamplesPerSec);
                 }
+            }
+
+
+            if (shouldComputeTestCost) {
+
+                let critTestCost = this.zeroScalar;
+
+                for (let i = 0; i < this.testExampleCount; i++) {
+                    const ndarrayFeedEntries = [];
+
+                    for (let j = 0; j < this.critTestFeedEntries.length; j++) {
+                        const feedEntry = this.critTestFeedEntries[j];
+                        const nextCopy = (feedEntry.data).getNextCopy(this.math);
+                        ndarrayFeedEntries.push({
+                            tensor: feedEntry.tensor,
+                            data: track(nextCopy)
+                        });
+                    }
+
+                    critTestCost = this.math.add(critTestCost, this.session.eval(this.critCostTensor, ndarrayFeedEntries));
+                }
+
+                const testExampleCountScalar = Scalar.new(this.testExampleCount);
+
+                critTestCost = this.math.divide(critTestCost, testExampleCountScalar);
+
+                // this.totalTestImagesEvaluated += this.testExampleCount
+
+                this.eventObserver.critCostCallback(-1, critTestCost);
+
             }
 
             if (this.eventObserver.evalTotalTimeCallback != null) {

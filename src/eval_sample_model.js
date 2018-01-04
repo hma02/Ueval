@@ -3,6 +3,8 @@
 // 2. improve UI description
 // 3. upload images to evaluate (https://stackoverflow.com/questions/22087076/how-to-make-a-simple-image-upload-using-javascript-html)
 // 4. Get better initial gen from GAN demo
+// 5. benchmark available experiments (with link to the weight file or sample image file)
+// 6. upload to dropbox the 4300s and 10s weights and rune sample images
 
 class Net { // gen or disc or critic
     constructor(name, archType, modelConfigs) {
@@ -195,9 +197,9 @@ class EvalSampleModel {
             batchesEvaluatedCallback: (batchesEvaluated) =>
                 this.displayBatchesEvaluated(batchesEvaluated),
 
-            critCostCallback: (cost) => {
+            critCostCallback: (cost, testCost) => {
                 var batchesEvaluated = this.graphRunner.getTotalBatchesEvaluated();
-                this.displayCost(cost, batchesEvaluated)
+                this.displayCost(cost, testCost, batchesEvaluated * batchSize)
             },
 
             inferenceExamplesCallback:
@@ -351,36 +353,45 @@ class EvalSampleModel {
 
     }
 
-    displayCost(avgCost, batchesEvaluated) {
+    displayCost(trainCost, testCost, batchesEvaluated) {
 
-        var cost = avgCost.get();
+        var cost;
+        var cost1;
 
-        this.avgWindow.add(cost);
-        var xa = this.avgWindow.get_average();
+        if (testCost == -1) {
+            cost = trainCost.get();
 
-        this.chartData.push({
-            x: batchesEvaluated,
-            y: cost
-        });
-        config.data.datasets[2].data = this.chartData;
+            this.chartData.push({
+                x: batchesEvaluated,
+                y: cost
+            });
+            config.data.datasets[2].data = this.chartData;
 
-        var direction;
-        if (this.metricName == 'js' || this.metricName == 'ls') {
-            direction = 'min'
-        } else if (this.metricName == 'iw') {
-            direction = 'max'
-        } else {
-            throw new Error('unknown metric')
+        } else if (trainCost == -1) {
+            cost1 = testCost.get();
+
+            // this.avgWindow.add(testCost);
+            // var xa = this.avgWindow.get_average();
+
+            this.chartAvgWindowData.push({
+                x: batchesEvaluated,
+                y: cost1 // xa
+            })
+            config.data.datasets[0].data = this.chartAvgWindowData;
+
+            var direction;
+            if (this.metricName == 'js' || this.metricName == 'ls') {
+                direction = 'min'
+            } else if (this.metricName == 'iw') {
+                direction = 'max'
+            } else {
+                throw new Error('unknown metric')
+            }
+
+            config.data.datasets[1].data = getBestPoint(this.chartAvgWindowData, direction)
+            this.finalScoreElt.innerHTML = `${this.metricName} Eval Score: ${config.data.datasets[1].data[0].y.toPrecision(5)}`;
+
         }
-
-        config.data.datasets[1].data = getBestPoint(this.chartData, direction)
-        this.finalScoreElt.innerHTML = `${this.metricName} Eval Score: ${config.data.datasets[1].data[0].y.toPrecision(5)}`;
-
-        this.chartAvgWindowData.push({
-            x: batchesEvaluated,
-            y: xa
-        })
-        config.data.datasets[0].data = this.chartAvgWindowData;
 
         this.critLossChart.update();
 
@@ -682,8 +693,8 @@ class EvalSampleModel {
     }
 
     startEvalulating() {
-        const data = getImageDataOnly(dataSet);
-
+        const data = getImageDataOnly(dataSet, 'train');
+        const dataTest = getImageDataOnly(dataSet, 'test');
         // Recreate optimizer with the selected optimizer and hyperparameters.
         let critOptimizer = createOptimizer('crit', this.graph); // for js, exact same optimizer
         // genOptimizer = createOptimizer('gen');
@@ -696,6 +707,11 @@ class EvalSampleModel {
                 new InCPUMemoryShuffledInputProviderBuilder([data]);
             const [inputImageProvider] =
             shuffledInputProviderGenerator.getInputProviders();
+
+            const shuffledTestInputProviderGenerator =
+                new InCPUMemoryShuffledInputProviderBuilder([dataTest]);
+            const [testInputImageProvider] =
+            shuffledTestInputProviderGenerator.getInputProviders();
 
             let inputSampleImageProvider;
             if (!this.needGen) {
@@ -747,9 +763,26 @@ class EvalSampleModel {
                 }
             ]
 
+            const critTestFeeds = [{
+                    tensor: this.xTensor,
+                    data: testInputImageProvider
+                }, {
+                    tensor: this.needGen ? this.randomTensor : this.x0Tensor,
+                    data: this.needGen ? getRandomInputProvider(this.generatorNet.inputShape) : inputSampleImageProvider
+                },
+                {
+                    tensor: this.oneTensor,
+                    data: oneInputProvider
+                },
+                {
+                    tensor: this.zeroTensor,
+                    data: zeroInputProvider
+                }
+            ]
+
             this.graphRunner.evaluate(
-                this.critLoss, null, critFeeds, null, batchSize,
-                critOptimizer, null, undefined, COST_INTERVAL_MS);
+                this.critLoss, TEST_EXAMPLE_COUNT, critFeeds, critTestFeeds, batchSize,
+                critOptimizer, null, undefined, COST_INTERVAL_MS, EVAL_INTERVAL_MS);
 
             // showEvalStats = true;
             // applicationState = ApplicationState.Evaluating;
@@ -758,9 +791,20 @@ class EvalSampleModel {
 
 }
 
-function getImageDataOnly(dataSet) {
+function getImageDataOnly(dataSet, type = 'all') {
     const [images, labels] = dataSet.getData();
-    return images
+
+    const threshold = TEST_EXAMPLE_COUNT;
+    if (type != 'all')
+        console.assert(threshold < images.length, 'the number of test examples should be less than the dataset size')
+
+    if (type == 'train') {
+        return images.slice(0, threshold)
+    } else if (type == 'test') {
+        return images.slice(threshold)
+    } else if (type == 'all') {
+        return images
+    }
 }
 
 function getRandomInputProvider(shape) {
