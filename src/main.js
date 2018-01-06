@@ -268,7 +268,7 @@ btn_infer.addEventListener('click', () => {
 var ulBtns = document.querySelectorAll(".upload");
 
 var evalHyperParamElt = document.querySelector("#targetEvalAmount");
-evalHyperParamElt.innerHTML = `Target Eval Amount: ${TARGET_EVALUATION_EXAMPLE_AMOUNT}` + '<br />' + `Avg Window Size: ${AVG_WINDOW_SIZE}` + '<br />' + `Critic test dataset size: ${TEST_EXAMPLE_COUNT}`;
+evalHyperParamElt.innerHTML = `Target Eval Amount: ${TARGET_EVALUATION_EXAMPLE_AMOUNT}` + '<br />' + `Critic test dataset size: ${TEST_EXAMPLE_COUNT}`;
 
 
 // ----------------------- application initialization and monitor ----------------------
